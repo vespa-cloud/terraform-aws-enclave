@@ -46,6 +46,14 @@ resource "aws_s3_bucket_policy" "secure_transport" {
   policy = data.aws_iam_policy_document.secure_transport.json
 }
 
+resource "aws_s3_bucket_public_access_block" "archive" {
+  bucket                  = aws_s3_bucket.archive.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
 data "aws_iam_policy_document" "secure_transport" {
   statement {
     sid = "SecureTransportOnly"
