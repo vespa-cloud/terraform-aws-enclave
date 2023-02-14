@@ -18,6 +18,7 @@ data "aws_availability_zone" "current" {
 
 module "archive" {
   source = "../archive"
+  vpc_id = aws_vpc.main.id
 }
 
 resource "aws_vpc" "main" {

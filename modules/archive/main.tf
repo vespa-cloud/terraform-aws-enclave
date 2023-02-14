@@ -70,7 +70,7 @@ resource "aws_kms_key" "archive" {
   enable_key_rotation = true
 }
 
-data "aws_iam_policy_document" "secure_transport" {
+data "aws_iam_policy_document" "archive" {
   statement {
     sid = "SecureTransportOnly"
 
@@ -92,6 +92,28 @@ data "aws_iam_policy_document" "secure_transport" {
       test     = "Bool"
       variable = "aws:SecureTransport"
       values   = ["false"]
+    }
+  }
+
+  statement {
+    sid = "ArchiveAccess"
+
+    effect = "Allow"
+
+    actions = [
+      "s3:PutObject",
+      "s3:PutObjectTagging"
+    ]
+
+    resources = [
+      aws_s3_bucket.archive.arn,
+      "${aws_s3_bucket.archive.arn}/*"
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "aws:SourceVpce"
+      values   = [var.vpc_id]
     }
   }
 }
