@@ -315,13 +315,48 @@ data "aws_caller_identity" "current" {}
 
 data "aws_iam_policy_document" "ebs_key" {
   policy_id = "key-default-1"
+
   statement {
-    sid       = "Enable IAM User Permissions"
-    actions   = ["kms:*"]
-    resources = ["*"]
+    sid = "Enable IAM User Permissions"
+
+    actions = [
+      "kms:Encrypt",
+      "kms:Decrypt",
+      "kms:ReEncrypt*",
+      "kms:GenerateDataKey*",
+      "kms:DescribeKey"
+    ]
+
+    resources = [
+      aws_kms_key.ebs.arn
+    ]
+
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+  }
+
+  statement {
+    sid = "Enable IAM User Permissions"
+
+    actions = [
+      "kms:CreateGrant"
+    ]
+
+    resources = [
+      aws_kms_key.ebs.arn
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = ["awn:aws:iam::${data.aws_caller_identify.current.account_id}:root"]
+    }
+
+    condition {
+      test     = "Bool"
+      variable = "kms:GrantIsForAWSResource"
+      values   = [true]
     }
   }
 }
