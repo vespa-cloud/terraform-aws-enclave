@@ -1,0 +1,124 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "ec2:TerminateInstances",
+        "ec2:CreateTags",
+        "ec2:RunInstances"
+      ],
+      "Resource": [
+        "arn:aws:ec2:*:*:subnet/*",
+        "arn:aws:ec2:*:*:instance/*",
+        "arn:aws:iam::*:role/*",
+        "arn:aws:ec2:*:*:volume/*",
+        "arn:aws:ec2:*:*:security-group/*",
+        "arn:aws:ec2:*:*:network-interface/*",
+        "arn:aws:ec2:*::image/*"
+      ],
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "iam:PassRole",
+        "route53:GetChange",
+        "kms:ReEncryptTo",
+        "kms:GenerateDataKeyWithoutPlaintext",
+        "route53:ChangeResourceRecordSets",
+        "kms:CreateGrant",
+        "kms:ReEncryptFrom"
+      ],
+      "Resource": [
+        "arn:aws:kms:*:*:key/*",
+        "arn:aws:route53:::hostedzone/*",
+        "arn:aws:route53:::change/*",
+        "arn:aws:iam::*:role/*"
+      ],
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "ec2:DescribeImages",
+        "kms:ListKeys",
+        "sts:AssumeRole",
+        "ec2:DescribeInstances",
+        "ec2:DescribeVpcs",
+        "kms:ListAliases",
+        "route53:ListHostedZones",
+        "ec2:DescribeSubnets",
+        "ec2:AssignPrivateIpAddresses",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeInstanceStatus"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": ["route53:GetChange", "route53:ChangeResourceRecordSets"],
+      "Resource": [
+        "arn:aws:ec2:*:*:instance/*",
+        "arn:aws:ec2:*::image/*",
+        "arn:aws:ec2:*:*:security-group/*",
+        "arn:aws:ec2:*:*:network-interface/*",
+        "arn:aws:ec2:*:*:subnet/*",
+        "arn:aws:ec2:*:*:volume/*"
+      ],
+      "Effect": "Allow"
+    },
+    {
+      "Action": "elasticloadbalancing:*",
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Action": [
+        "ec2:DescribeAccountAttributes",
+        "ec2:DescribeAddresses",
+        "ec2:DescribeInternetGateways",
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeVpcs",
+        "ec2:DescribeVpcClassicLink",
+        "ec2:DescribeInstances",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DescribeClassicLinkInstances",
+        "ec2:DescribeRouteTables",
+        "ec2:DescribeCoipPools",
+        "ec2:GetCoipPoolUsage",
+        "ec2:DescribeVpcPeeringConnections",
+        "cognito-idp:DescribeUserPoolClient",
+        "ec2:CreateTags",
+        "ec2:DescribeVpcEndpointServiceConfigurations",
+        "ec2:DescribeVpcEndpointConnections",
+        "ec2:CreateVpcEndpointServiceConfiguration",
+        "ec2:ModifyVpcEndpointServiceConfiguration",
+        "ec2:DeleteVpcEndpointServiceConfigurations",
+        "ec2:DescribeVpcEndpointServicePermissions",
+        "ec2:ModifyVpcEndpointServicePermissions",
+        "ec2:StartVpcEndpointServicePrivateDnsVerification"
+      ],
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Condition": {
+        "StringEquals": {
+          "iam:AWSServiceName": "elasticloadbalancing.amazonaws.com"
+        }
+      },
+      "Action": "iam:CreateServiceLinkedRole",
+      "Resource": "*",
+      "Effect": "Allow"
+    },
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ssm:PutParameter",
+        "ssm:DeleteParameter",
+        "ssm:GetParameter",
+        "ssm:GetParametersByPath"
+      ],
+      "Resource": "arn:aws:ssm:*:*:parameter/VespaCloud/WireGuardPublicKeys/*"
+    }
+  ]
+}
