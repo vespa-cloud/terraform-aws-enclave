@@ -17,8 +17,9 @@ data "aws_availability_zone" "current" {
 }
 
 module "archive" {
-  source = "../archive"
-  vpc_id = aws_vpc.main.id
+  source    = "../archive"
+  vpc_id    = aws_vpc.main.id
+  zone_name = var.zone.name
 }
 
 resource "aws_vpc" "main" {
@@ -279,8 +280,8 @@ resource "aws_security_group_rule" "out_any" {
 
 data "aws_region" "current" {}
 
-resource "aws_vpc_endpoint" "ecr" {
-  for_each            = toset(["ecr.dkr", "ssm", "ssmmessages", "ec2messages", "sts"])
+resource "aws_vpc_endpoint" "interface" {
+  for_each            = toset(["ecr.api", "ecr.dkr", "ssm", "ssmmessages", "ec2messages", "sts"])
   vpc_id              = aws_vpc.main.id
   subnet_ids          = [aws_subnet.hosts.id]
   security_group_ids  = [aws_security_group.sg.id]
@@ -317,8 +318,6 @@ data "aws_iam_policy_document" "ebs_key" {
   policy_id = "key-default-1"
 
   statement {
-    sid = "vespa-cloud-ebs-1"
-
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
@@ -334,8 +333,6 @@ data "aws_iam_policy_document" "ebs_key" {
   }
 
   statement {
-    sid = "vespa-cloud-ebs-2"
-
     actions = [
       "kms:CreateGrant"
     ]

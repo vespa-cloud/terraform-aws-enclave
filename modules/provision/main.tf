@@ -36,10 +36,39 @@ resource "aws_iam_policy" "vespa_cloud_provision_policy" {
   }
 }
 
-# TODO: Remove this when we no longer depend on parameter store
 resource "aws_iam_policy" "vespa_cloud_host_policy" {
   name   = "vespa-cloud-host-policy"
-  policy = file("${path.module}/host-policy.json")
+  policy = jsonencode({
+    Version   = "2012-10-17",
+    Statement = [
+      { # Allow hosts to upload their Wireguard key to parameter store, TODO: Remove
+        Effect   = "Allow"
+        Action   = "ssm:PutParameter"
+        Resource = "arn:aws:ssm:*:*:parameter/VespaCloud/WireguardParams/e*"
+      },
+      { # Allow hosts to upload to their archive bucket
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:PutObjectTagging",
+        ]
+        Resource = "arn:aws:s3:::vespa-archive-*"
+      },
+      { # Allow getting ECR authorization token to download container images
+        Effect   = "Allow"
+        Action   = "ecr:GetAuthorizationToken"
+        Resource = "*"
+      },
+      { # Allow downloading container images from the system account
+        Effect = "Allow"
+        Action = [
+          "ecr:BatchGetImage",
+          "ecr:GetDownloadUrlForLayer",
+        ]
+        Resource = "arn:aws:ecr:*:${var.vespa_cloud_account}:repository/*"
+      }
+    ]
+  })
   tags = {
     managedby = "vespa-cloud"
   }
