@@ -318,6 +318,8 @@ data "aws_iam_policy_document" "ebs_key" {
   policy_id = "key-default-1"
 
   statement {
+    effect = "Allow"
+
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
@@ -333,6 +335,8 @@ data "aws_iam_policy_document" "ebs_key" {
   }
 
   statement {
+    effect = "Allow"
+
     actions = [
       "kms:CreateGrant"
     ]
@@ -347,6 +351,34 @@ data "aws_iam_policy_document" "ebs_key" {
       variable = "kms:GrantIsForAWSResource"
       values   = [true]
     }
+  }
+
+  statement {
+    effect = "Allow"
+
+    actions = [
+      "kms:Create*",
+      "kms:Describe*",
+      "kms:Enable*",
+      "kms:List*",
+      "kms:Put*",
+      "kms:Update*",
+      "kms:Revoke*",
+      "kms:Disable*",
+      "kms:Get*",
+      "kms:Delete*",
+      "kms:ScheduleKeyDeletion",
+      "kms:CancelKeyDeletion"
+    ]
+
+    principals {
+      type        = "AWS"
+      identifiers = [data.aws_caller_identity.current.arn]
+    }
+
+    #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
+    #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
+    resources = [ "*" ]
   }
 }
 
