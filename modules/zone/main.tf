@@ -342,7 +342,7 @@ data "aws_iam_policy_document" "ebs_key" {
 
     principals {
       type        = "AWS"
-      identifiers = ["awn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
 
     condition {
