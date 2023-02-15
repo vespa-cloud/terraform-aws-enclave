@@ -7,14 +7,19 @@ terraform {
   }
 }
 
-data "aws_region" "current" {}
-
 data "aws_caller_identity" "current" {}
 
+resource "random_string" "archive" {
+  length   = 6
+  special  = false
+  upper    = false
+}
+
 resource "aws_s3_bucket" "archive" {
-  bucket = "vespa-archive-${data.aws_caller_identity.current.account_id}-${data.aws_region.current.name}"
+  bucket = "vespa-archive-${data.aws_caller_identity.current.account_id}-${var.zone_name}-${random_string.archive.id}"
   tags = {
     managedby = "vespa-cloud"
+    zone      = var.zone_name
   }
 }
 
@@ -65,7 +70,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "archive" {
 }
 
 resource "aws_kms_key" "archive" {
-  description         = "Vesp Cloud Enclave / ${data.aws_caller_identity.current.account_id} ${data.aws_region.current.name}"
+  description         = "Encryption key for ${aws_s3_bucket.archive.bucket} S3 bucket"
   key_usage           = "ENCRYPT_DECRYPT"
   enable_key_rotation = true
 }

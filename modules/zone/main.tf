@@ -17,8 +17,9 @@ data "aws_availability_zone" "current" {
 }
 
 module "archive" {
-  source = "../archive"
-  vpc_id = aws_vpc.main.id
+  source    = "../archive"
+  vpc_id    = aws_vpc.main.id
+  zone_name = var.zone.name
 }
 
 resource "aws_vpc" "main" {
@@ -317,8 +318,6 @@ data "aws_iam_policy_document" "ebs_key" {
   policy_id = "key-default-1"
 
   statement {
-    sid = "vespa-cloud-ebs-1"
-
     actions = [
       "kms:Encrypt",
       "kms:Decrypt",
@@ -334,8 +333,6 @@ data "aws_iam_policy_document" "ebs_key" {
   }
 
   statement {
-    sid = "vespa-cloud-ebs-2"
-
     actions = [
       "kms:CreateGrant"
     ]
