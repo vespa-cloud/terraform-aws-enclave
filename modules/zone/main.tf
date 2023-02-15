@@ -327,10 +327,6 @@ data "aws_iam_policy_document" "ebs_key" {
       "kms:DescribeKey"
     ]
 
-    resources = [
-      aws_kms_key.ebs.arn
-    ]
-
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
@@ -342,10 +338,6 @@ data "aws_iam_policy_document" "ebs_key" {
 
     actions = [
       "kms:CreateGrant"
-    ]
-
-    resources = [
-      aws_kms_key.ebs.arn
     ]
 
     principals {
