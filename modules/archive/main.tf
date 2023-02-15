@@ -43,7 +43,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "archive" {
 
 resource "aws_s3_bucket_policy" "secure_transport" {
   bucket = aws_s3_bucket.archive.id
-  policy = data.aws_iam_policy_document.secure_transport.json
+  policy = data.aws_iam_policy_document.archive.json
 }
 
 resource "aws_s3_bucket_public_access_block" "archive" {

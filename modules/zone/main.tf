@@ -317,7 +317,7 @@ data "aws_iam_policy_document" "ebs_key" {
   policy_id = "key-default-1"
 
   statement {
-    sid = "Enable IAM User Permissions"
+    sid = "vespa-cloud-ebs-1"
 
     actions = [
       "kms:Encrypt",
@@ -334,7 +334,7 @@ data "aws_iam_policy_document" "ebs_key" {
   }
 
   statement {
-    sid = "Enable IAM User Permissions"
+    sid = "vespa-cloud-ebs-2"
 
     actions = [
       "kms:CreateGrant"
@@ -342,7 +342,7 @@ data "aws_iam_policy_document" "ebs_key" {
 
     principals {
       type        = "AWS"
-      identifiers = ["awn:aws:iam::${data.aws_caller_identify.current.account_id}:root"]
+      identifiers = ["awn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
 
     condition {
