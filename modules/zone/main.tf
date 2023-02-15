@@ -357,18 +357,7 @@ data "aws_iam_policy_document" "ebs_key" {
     effect = "Allow"
 
     actions = [
-      "kms:Create*",
-      "kms:Describe*",
-      "kms:Enable*",
-      "kms:List*",
-      "kms:Put*",
-      "kms:Update*",
-      "kms:Revoke*",
-      "kms:Disable*",
-      "kms:Get*",
-      "kms:Delete*",
-      "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion"
+      "kms:PutKeyPolicy"
     ]
 
     principals {
