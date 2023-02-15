@@ -280,8 +280,8 @@ resource "aws_security_group_rule" "out_any" {
 
 data "aws_region" "current" {}
 
-resource "aws_vpc_endpoint" "ecr" {
-  for_each            = toset(["ecr.dkr", "ssm", "ssmmessages", "ec2messages", "sts"])
+resource "aws_vpc_endpoint" "interface" {
+  for_each            = toset(["ecr.api", "ecr.dkr", "ssm", "ssmmessages", "ec2messages", "sts"])
   vpc_id              = aws_vpc.main.id
   subnet_ids          = [aws_subnet.hosts.id]
   security_group_ids  = [aws_security_group.sg.id]
