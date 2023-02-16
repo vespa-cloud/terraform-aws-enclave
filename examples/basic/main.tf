@@ -1,6 +1,6 @@
 
 #
-# Sett up the AWS Terraform Provider to point to the region where
+# Set up the AWS Terraform Provider to point to the region where
 # your want to provision the Vespa Cloud Enclave.
 #
 provider "aws" {
