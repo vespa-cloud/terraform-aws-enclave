@@ -332,6 +332,10 @@ data "aws_iam_policy_document" "ebs_key" {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
+
+    #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
+    #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
+    resources = [ "*" ]
   }
 
   statement {
@@ -351,6 +355,10 @@ data "aws_iam_policy_document" "ebs_key" {
       variable = "kms:GrantIsForAWSResource"
       values   = [true]
     }
+
+    #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
+    #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
+    resources = [ "*" ]
   }
 
   statement {
