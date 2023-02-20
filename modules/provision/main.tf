@@ -41,11 +41,6 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
   policy = jsonencode({
     Version   = "2012-10-17",
     Statement = [
-      { # Allow hosts to upload their Wireguard key to parameter store, TODO: Remove
-        Effect   = "Allow"
-        Action   = "ssm:PutParameter"
-        Resource = "arn:aws:ssm:*:*:parameter/VespaCloud/WireguardParams/e*"
-      },
       { # Allow hosts to upload to their archive bucket
         Effect = "Allow"
         Action = [

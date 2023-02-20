@@ -109,16 +109,6 @@
       "Action": "iam:CreateServiceLinkedRole",
       "Resource": "*",
       "Effect": "Allow"
-    },
-    {
-      "Effect": "Allow",
-      "Action": [
-        "ssm:DeleteParameter",
-        "ssm:GetParameter",
-        "ssm:GetParametersByPath",
-        "ssm:PutParameter"
-      ],
-      "Resource": "arn:aws:ssm:*:*:parameter/VespaCloud/WireGuardPublicKeys/*"
     }
   ]
 }
