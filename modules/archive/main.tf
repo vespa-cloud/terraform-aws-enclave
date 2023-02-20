@@ -16,10 +16,10 @@ resource "random_string" "archive" {
 }
 
 resource "aws_s3_bucket" "archive" {
-  bucket = "vespa-archive-${data.aws_caller_identity.current.account_id}-${var.zone_name}-${random_string.archive.id}"
+  bucket = "vespa-archive-${data.aws_caller_identity.current.account_id}-${var.zone.name}-${random_string.archive.id}"
   tags = {
     managedby = "vespa-cloud"
-    zone      = var.zone_name
+    zone      = var.zone.name
   }
 }
 
@@ -73,6 +73,13 @@ resource "aws_kms_key" "archive" {
   description         = "Encryption key for ${aws_s3_bucket.archive.bucket} S3 bucket"
   key_usage           = "ENCRYPT_DECRYPT"
   enable_key_rotation = true
+  deletion_window_in_days = 7
+  tags = var.zone.is_cd ? {
+    managedby          = "vespa-cloud"
+    "eh:DeleteConsent" = "Integration test"
+  } : {
+    managedby = "vespa-cloud"
+  }
 }
 
 data "aws_iam_policy_document" "archive" {
