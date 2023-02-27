@@ -106,31 +106,4 @@ data "aws_iam_policy_document" "archive" {
       values   = ["false"]
     }
   }
-
-  statement {
-    sid = "ArchiveAccess"
-
-    effect = "Allow"
-
-    principals {
-      type        = "AWS"
-      identifiers = ["*"]
-    }
-
-    actions = [
-      "s3:PutObject",
-      "s3:PutObjectTagging"
-    ]
-
-    resources = [
-      aws_s3_bucket.archive.arn,
-      "${aws_s3_bucket.archive.arn}/*"
-    ]
-
-    condition {
-      test     = "StringEquals"
-      variable = "aws:SourceVpce"
-      values   = [var.vpc_id]
-    }
-  }
 }
