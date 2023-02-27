@@ -7,6 +7,8 @@ terraform {
   }
 }
 
+data "aws_region" "current" {}
+
 resource "aws_iam_role" "vespa_cloud_provisioner_role" {
   name        = "vespa-cloud-provisioner"
   description = "Allow config servers to provision resources"
@@ -37,6 +39,7 @@ resource "aws_iam_policy" "vespa_cloud_provision_policy" {
 }
 
 resource "aws_iam_policy" "vespa_cloud_host_policy" {
+  #checkov:skip=CKV_AWS_290: Resource '*' is OK because we have a condition
   name   = "vespa-cloud-host-policy"
   policy = jsonencode({
     Version   = "2012-10-17",
@@ -48,6 +51,16 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
           "s3:PutObjectTagging",
         ]
         Resource = "arn:aws:s3:::vespa-archive-*"
+      },
+      { # Allow hosts to generate data key to encrypt when uploading to archive bucket
+        Effect    = "Allow"
+        Action    = "kms:GenerateDataKey"
+        Resource  = "*"
+        Condition = {
+          StringEquals = {
+            "kms:ViaService": "s3.${data.aws_region.current.name}.amazonaws.com"
+          }
+        }
       },
       { # Allow getting ECR authorization token to download container images
         Effect   = "Allow"
