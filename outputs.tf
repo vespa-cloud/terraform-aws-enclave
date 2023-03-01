@@ -26,7 +26,7 @@ locals {
   zones_by_env = {
     for zone in local.all_zones :
     zone.environment => merge(
-    { name = "${zone.environment}.${zone.region}", is_cd = var.is_cd, az = local.az_by_region[zone.region], full_name = "${zone.environment}.${zone.region}"}, zone)...
+    { name = "${zone.environment}.${zone.region}", is_cd = var.is_cd, az = local.az_by_region[zone.region], full_name = "${zone.environment}.${zone.region}" }, zone)...
   }
 }
 
