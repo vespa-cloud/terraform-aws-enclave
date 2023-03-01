@@ -28,7 +28,7 @@ resource "aws_vpc" "main" {
   tags = {
     Name           = var.zone.name
     managedby      = "vespa-cloud"
-    zone           = var.zone.name
+    zone           = var.zone.full_name
     archive_bucket = module.archive.bucket
   }
 }
