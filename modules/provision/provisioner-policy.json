@@ -20,25 +20,19 @@
     },
     {
       "Action": [
-        "iam:PassRole",
         "kms:CreateGrant",
         "kms:GenerateDataKeyWithoutPlaintext",
         "kms:ReEncryptFrom",
-        "kms:ReEncryptTo",
-        "route53:ChangeResourceRecordSets",
-        "route53:GetChange"
+        "kms:ReEncryptTo"
       ],
       "Resource": [
         "arn:aws:iam::*:role/*",
-        "arn:aws:kms:*:*:key/*",
-        "arn:aws:route53:::change/*",
-        "arn:aws:route53:::hostedzone/*"
+        "arn:aws:kms:*:*:key/*"
       ],
       "Effect": "Allow"
     },
     {
       "Action": [
-        "ec2:AssignPrivateIpAddresses",
         "ec2:DescribeImages",
         "ec2:DescribeInstanceStatus",
         "ec2:DescribeInstances",
@@ -46,23 +40,9 @@
         "ec2:DescribeSubnets",
         "ec2:DescribeVpcs",
         "kms:ListAliases",
-        "kms:ListKeys",
-        "route53:ListHostedZones",
-        "sts:AssumeRole"
+        "kms:ListKeys"
       ],
       "Resource": "*",
-      "Effect": "Allow"
-    },
-    {
-      "Action": ["route53:GetChange", "route53:ChangeResourceRecordSets"],
-      "Resource": [
-        "arn:aws:ec2:*:*:image/*",
-        "arn:aws:ec2:*:*:instance/*",
-        "arn:aws:ec2:*:*:security-group/*",
-        "arn:aws:ec2:*:*:network-interface/*",
-        "arn:aws:ec2:*:*:subnet/*",
-        "arn:aws:ec2:*:*:volume/*"
-      ],
       "Effect": "Allow"
     },
     {
@@ -72,41 +52,20 @@
     },
     {
       "Action": [
-        "cognito-idp:DescribeUserPoolClient",
         "ec2:CreateTags",
         "ec2:CreateVpcEndpointServiceConfiguration",
         "ec2:DeleteVpcEndpointServiceConfigurations",
         "ec2:DescribeAccountAttributes",
-        "ec2:DescribeAddresses",
-        "ec2:DescribeClassicLinkInstances",
-        "ec2:DescribeCoipPools",
         "ec2:DescribeInstances",
         "ec2:DescribeInternetGateways",
-        "ec2:DescribeNetworkInterfaces",
-        "ec2:DescribeRouteTables",
         "ec2:DescribeSecurityGroups",
         "ec2:DescribeSubnets",
-        "ec2:DescribeVpcClassicLink",
-        "ec2:DescribeVpcEndpointConnections",
         "ec2:DescribeVpcEndpointServiceConfigurations",
         "ec2:DescribeVpcEndpointServicePermissions",
-        "ec2:DescribeVpcPeeringConnections",
         "ec2:DescribeVpcs",
-        "ec2:GetCoipPoolUsage",
         "ec2:ModifyVpcEndpointServiceConfiguration",
-        "ec2:ModifyVpcEndpointServicePermissions",
-        "ec2:StartVpcEndpointServicePrivateDnsVerification"
+        "ec2:ModifyVpcEndpointServicePermissions"
       ],
-      "Resource": "*",
-      "Effect": "Allow"
-    },
-    {
-      "Condition": {
-        "StringEquals": {
-          "iam:AWSServiceName": "elasticloadbalancing.amazonaws.com"
-        }
-      },
-      "Action": "iam:CreateServiceLinkedRole",
       "Resource": "*",
       "Effect": "Allow"
     }
