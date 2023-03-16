@@ -31,6 +31,10 @@ resource "aws_iam_role" "vespa_cloud_provisioner_role" {
 }
 
 resource "aws_iam_policy" "vespa_cloud_provision_policy" {
+  #
+  # - All resources with * needs to have a name pattern that identifies Vespa resources
+  # - All pure * resources need to be removed.
+  #
   name   = "vespa-cloud-provisioner-policy"
   policy = file("${path.module}/provisioner-policy.json")
   tags = {
@@ -40,9 +44,9 @@ resource "aws_iam_policy" "vespa_cloud_provision_policy" {
 
 resource "aws_iam_policy" "vespa_cloud_host_policy" {
   #checkov:skip=CKV_AWS_290: Resource '*' is OK because we have a condition
-  name   = "vespa-cloud-host-policy"
+  name = "vespa-cloud-host-policy"
   policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [
       { # Allow hosts to upload to their archive bucket
         Effect = "Allow"
@@ -53,12 +57,12 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
         Resource = "arn:aws:s3:::vespa-archive-*"
       },
       { # Allow hosts to generate data key to encrypt when uploading to archive bucket
-        Effect    = "Allow"
-        Action    = "kms:GenerateDataKey"
-        Resource  = "*"
+        Effect   = "Allow"
+        Action   = "kms:GenerateDataKey"
+        Resource = "*"
         Condition = {
           StringEquals = {
-            "kms:ViaService": "s3.${data.aws_region.current.name}.amazonaws.com"
+            "kms:ViaService" : "s3.${data.aws_region.current.name}.amazonaws.com"
           }
         }
       },
