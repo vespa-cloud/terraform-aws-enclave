@@ -73,7 +73,7 @@ resource "aws_subnet" "lb" {
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = "vespa-igw"
+    Name      = "${var.zone.name}-igw"
     managedby = "vespa-cloud"
   }
 }
@@ -84,7 +84,7 @@ resource "aws_internet_gateway" "gw" {
 resource "aws_route_table" "hosts" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = var.zone.name
+    Name      = "${var.zone.name}-rt"
     managedby = "vespa-cloud"
   }
 }
@@ -103,7 +103,7 @@ resource "aws_route_table_association" "hosts" {
 resource "aws_route_table" "lb" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = "vespa-igw-rt"
+    Name      = "${var.zone.name}-igw-rt"
     managedby = "vespa-cloud"
   }
 }
@@ -134,7 +134,7 @@ resource "aws_network_acl" "main" {
     aws_subnet.lb.id,
   ]
   tags = {
-    Name      = "vespa-nacl"
+    Name      = "${var.zone.name}-nacl"
     managedby = "vespa-cloud"
   }
 }
@@ -251,7 +251,7 @@ resource "aws_security_group" "sg" {
   description = "Vespa security group"
   vpc_id      = aws_vpc.main.id
   tags = {
-    Name      = "vespa-vpc-sg"
+    Name      = "${var.zone.name}-vpc-sg"
     managedby = "vespa-cloud"
   }
 }
