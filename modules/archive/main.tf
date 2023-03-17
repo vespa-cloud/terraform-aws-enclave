@@ -43,10 +43,6 @@ resource "aws_s3_bucket_lifecycle_configuration" "archive" {
     expiration {
       days = 31
     }
-  }
-  rule {
-    id     = "abort_incomplete_multipart_upload"
-    status = "Enabled"
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
