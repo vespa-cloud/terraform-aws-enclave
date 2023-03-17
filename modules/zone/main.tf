@@ -41,8 +41,9 @@ resource "aws_vpc" "main" {
 # The assigned prefix is further divided in the following networks:
 #
 # name   prefix   address count  usable count
-# lb     24       256            254
 # hosts  21       2048           2046
+# lb     24       256            254
+# natgw  24       256            254
 
 resource "aws_subnet" "hosts" {
   vpc_id                          = aws_vpc.main.id
@@ -68,25 +69,61 @@ resource "aws_subnet" "lb" {
   }
 }
 
+resource "aws_subnet" "natgw" {
+  vpc_id                          = aws_vpc.main.id
+  cidr_block                      = cidrsubnet(var.zone_ipv4_cidr, 4, 3)
+  ipv6_cidr_block                 = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 3)
+  assign_ipv6_address_on_creation = true
+  availability_zone               = data.aws_availability_zone.current.name
+  tags = {
+    Name      = "${var.zone.name}-subnet-natgw"
+    managedby = "vespa-cloud"
+  }
+}
+
 # Gateways
 
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = "vespa-igw"
+    Name      = "${var.zone.name}-igw"
     managedby = "vespa-cloud"
   }
 }
 
+resource "aws_eip" "natgw" {
+  tags = {
+    Name      = "${var.zone.name}-eip-natgw"
+    managedby = "vespa-cloud"
+  }
+}
+
+resource "aws_nat_gateway" "gw" {
+  allocation_id = aws_eip.natgw.id
+  subnet_id     = aws_subnet.natgw.id
+  tags = {
+    Name      = "${var.zone.name}-natgw"
+    managedby = "vespa-cloud"
+  }
+  # To ensure proper ordering, it is recommended to add an explicit dependency
+  # on the Internet Gateway for the VPC.
+  depends_on = [aws_internet_gateway.gw]
+}
 
 # Routing tables
 
 resource "aws_route_table" "hosts" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = var.zone.name
+    Name      = "${var.zone.name}-rt"
     managedby = "vespa-cloud"
   }
+}
+
+resource "aws_route" "hosts_ipv4" {
+  route_table_id         = aws_route_table.hosts.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.gw.id
 }
 
 resource "aws_route" "hosts_ipv6" {
@@ -103,7 +140,7 @@ resource "aws_route_table_association" "hosts" {
 resource "aws_route_table" "lb" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = "vespa-igw-rt"
+    Name      = "${var.zone.name}-igw-rt"
     managedby = "vespa-cloud"
   }
 }
@@ -125,6 +162,25 @@ resource "aws_route_table_association" "lb" {
   route_table_id = aws_route_table.lb.id
 }
 
+resource "aws_route_table" "natgw" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name      = "${var.zone.name}-natgw-rt"
+    managedby = "vespa-cloud"
+  }
+}
+
+resource "aws_route_table_association" "natgw" {
+  subnet_id      = aws_subnet.natgw.id
+  route_table_id = aws_route_table.natgw.id
+}
+
+resource "aws_route" "natgw_ipv4" {
+  route_table_id         = aws_route_table.natgw.id
+  destination_cidr_block = "0.0.0.0/0"
+  gateway_id             = aws_internet_gateway.gw.id
+}
+
 # Network ACLs
 
 resource "aws_network_acl" "main" {
@@ -132,9 +188,10 @@ resource "aws_network_acl" "main" {
   subnet_ids = [
     aws_subnet.hosts.id,
     aws_subnet.lb.id,
+    aws_subnet.natgw.id,
   ]
   tags = {
-    Name      = "vespa-nacl"
+    Name      = "${var.zone.name}-nacl"
     managedby = "vespa-cloud"
   }
 }
@@ -251,7 +308,7 @@ resource "aws_security_group" "sg" {
   description = "Vespa security group"
   vpc_id      = aws_vpc.main.id
   tags = {
-    Name      = "vespa-vpc-sg"
+    Name      = "${var.zone.name}-vpc-sg"
     managedby = "vespa-cloud"
   }
 }
