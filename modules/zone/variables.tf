@@ -5,7 +5,7 @@ variable "zone" {
     environment = string,
     region      = string,
     name        = string,
-    full_name   = string,
+    tag         = string,
     az          = string,
     is_cd       = bool,
   })
