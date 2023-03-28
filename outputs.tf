@@ -9,24 +9,24 @@ locals {
     aws-ap-northeast-1a = "apne1-az4",
   }
   all_zones = var.is_cd ? [
-    { environment = "dev", region = "aws-us-east-1c", name = "dev.aws-use-1c" },
-    { environment = "test", region = "aws-us-east-1c", name = "test.aws-use-1c" },
-    { environment = "staging", region = "aws-us-east-1c", name = "staging.aws-use-1c" },
-    { environment = "prod", region = "aws-us-east-1c", name = "prod.aws-use-1c" },
+    { environment = "dev", region = "aws-us-east-1c", tag = "dev.aws-use-1c" },
+    { environment = "test", region = "aws-us-east-1c", tag = "test.aws-use-1c" },
+    { environment = "staging", region = "aws-us-east-1c", tag = "staging.aws-use-1c" },
+    { environment = "prod", region = "aws-us-east-1c", tag = "prod.aws-use-1c" },
     ] : [
-    { environment = "dev", region = "aws-us-east-1c" },
-    { environment = "test", region = "aws-us-east-1c" },
-    { environment = "staging", region = "aws-us-east-1c" },
-    { environment = "perf", region = "aws-us-east-1c" },
-    { environment = "prod", region = "aws-us-east-1c" },
-    { environment = "prod", region = "aws-us-west-2a" },
-    { environment = "prod", region = "aws-eu-west-1a" },
-    { environment = "prod", region = "aws-ap-northeast-1a" },
+    { environment = "dev", region = "aws-us-east-1c", tag = "dev.aws-use-1c" },
+    { environment = "test", region = "aws-us-east-1c", tag = "test.aws-use-1c" },
+    { environment = "staging", region = "aws-us-east-1c", tag = "staging.aws-use-1c" },
+    { environment = "perf", region = "aws-us-east-1c", tag = "perf.aws-use-1c" },
+    { environment = "prod", region = "aws-us-east-1c", tag = "prod.aws-use-1c" },
+    { environment = "prod", region = "aws-us-west-2a", tag = "prod.aws-usw-2a" },
+    { environment = "prod", region = "aws-eu-west-1a", tag = "prod.aws-euw-1a" },
+    { environment = "prod", region = "aws-ap-northeast-1a", tag = "prod.aws-apne-1a" },
   ]
   zones_by_env = {
     for zone in local.all_zones :
     zone.environment => merge(
-    { name = "${zone.environment}.${zone.region}", is_cd = var.is_cd, az = local.az_by_region[zone.region], full_name = "${zone.environment}.${zone.region}" }, zone)...
+    { name = "${zone.environment}.${zone.region}", is_cd = var.is_cd, az = local.az_by_region[zone.region] }, zone)...
   }
 }
 

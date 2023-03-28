@@ -26,9 +26,9 @@ resource "aws_vpc" "main" {
   assign_generated_ipv6_cidr_block = true
   enable_dns_hostnames             = true
   tags = {
-    Name           = var.zone.name
+    Name           = var.zone.tag # TODO Change to zone.name
     managedby      = "vespa-cloud"
-    zone           = var.zone.full_name
+    zone           = var.zone.name
     archive_bucket = module.archive.bucket
   }
 }
@@ -52,7 +52,7 @@ resource "aws_subnet" "hosts" {
   assign_ipv6_address_on_creation = true
   availability_zone               = data.aws_availability_zone.current.name
   tags = {
-    Name      = "${var.zone.name}-subnet-tenant"
+    Name      = "${var.zone.tag}-subnet-tenant" # TODO: Change to zone.name
     managedby = "vespa-cloud"
   }
 }
@@ -64,7 +64,7 @@ resource "aws_subnet" "lb" {
   assign_ipv6_address_on_creation = true
   availability_zone               = data.aws_availability_zone.current.name
   tags = {
-    Name      = "${var.zone.name}-subnet-tenantelb"
+    Name      = "${var.zone.tag}-subnet-tenantelb"
     managedby = "vespa-cloud"
   }
 }
