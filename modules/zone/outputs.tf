@@ -23,3 +23,6 @@ output "hosts_ipv6_cidr_block" {
 output "hosts_subnet_id" {
   value = aws_subnet.hosts.id
 }
+output "archive_bucket" {
+  value = module.archive.bucket
+}
