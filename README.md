@@ -30,7 +30,7 @@ module "enclave" {
 }
 
 module "zone_prod_us_east_1c" {
-    source = vespa-cloud/terraform-aws-enclave/modules/zone"
+    source = "vespa-cloud/terraform-aws-enclave/modules/zone"
     zone = module.enclave.zones.prod.aws_us_east_1c
     providers = {
         aws = aws.us_east_1
