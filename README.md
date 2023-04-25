@@ -1,18 +1,19 @@
 # Vespa Cloud Enclave Terraform
 
-This Terraform module handles bootstrapping of an AWS account such that
-it can be part of a Vespa Cloud Enclave.  Since Vespa Cloud is spread
-across multiple AWS regions, one AWS provider must be set up for each
-region that you want to host an Enclave in.
+This Terraform module handles bootstrapping of an AWS account such that it can
+be part of a Vespa Cloud Enclave. Since Vespa Cloud is spread across multiple
+AWS regions, one AWS provider must be set up for each region that you want to
+host an Enclave in.
 
-After declaring the providers, set up the global `enclave` module.
-This module configures the global AWS resources like IAM roles and
-policies needed to get started.
+After declaring the providers, set up the global `enclave` module. This module
+configures the global AWS resources like IAM roles and policies needed to get
+started.
 
-Then for each Enclave you want to host in your account - declare the
-`zone` module for each Vespa Cloud zone you need.  
+Then for each Enclave you want to host in your account - declare the `zone`
+module for each Vespa Cloud zone you need.
 
 Example use:
+
 ```terraform
 provider "aws" {
   alias  = "us_east_1"
