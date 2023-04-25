@@ -18,7 +18,8 @@ provider "aws" {
 # provision Vespa Cloud resources inside the AWS account.
 #
 module "enclave" {
-  source      = "vespa-cloud/terraform-aws-enclave"
+  source      = "vespa-cloud/enclave/aws"
+  version     = ">= 1.0.0, < 2.0.0"
   tenant_name = "<YOUR-TENANT-HERE>"
 }
 
@@ -31,24 +32,28 @@ module "enclave" {
 # pipline that Vespa Cloud supports.
 #
 module "zone_test_us_east_1c" {
-  source = "vespa-cloud/terraform-aws-enclave/modules/zone"
-  zone   = module.enclave.zones.test.us_east_1c
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = ">= 1.0.0, < 2.0.0"
+  zone    = module.enclave.zones.test.us_east_1c
 }
 
 module "zone_staging_us_east_1c" {
-  source = "vespa-cloud/terraform-aws-enclave/modules/zone"
-  zone   = module.enclave.zones.staging.us_east_1c
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = ">= 1.0.0, < 2.0.0"
+  zone    = module.enclave.zones.staging.us_east_1c
 }
 
 #
 #  Then we set up two zones that production deployments go to.
 #
 module "zone_prod_us_east_1c" {
-  source = "vespa-cloud/terraform-aws-enclave/modules/zone"
-  zone   = module.enclave.zones.prod.us_east_1c
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = ">= 1.0.0, < 2.0.0"
+  zone    = module.enclave.zones.prod.us_east_1c
 }
 
 module "zone_prod_us_west_1a" {
-  source = "vespa-cloud/terraform-aws-enclave/modules/zone"
-  zone   = module.enclave.zones.prod.us_west_1a
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = ">= 1.0.0, < 2.0.0"
+  zone    = module.enclave.zones.prod.us_west_1a
 }
