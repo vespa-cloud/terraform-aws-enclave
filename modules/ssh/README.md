@@ -7,12 +7,14 @@ Only use this module if you explicitly wish to grant this access.
 
 ```terraform
 module "enclave" {
-    source = "../../Source/terraform-enclave-aws"
-    tenant_name = "vespa"
+  source      = "vespa-cloud/enclave/aws"
+  version     = ">= 1.0.0, < 2.0.0"
+  tenant_name = "<vespa cloud tenant>"
 }
 
 module "ssh" {
-    source              = "vespa-cloud/terraform-aws-vespa-cloud-enclave/modules/ssh"
-    vespa_cloud_account = module.enclave.vespa_cloud_account
+  source              = "vespa-cloud/enclave/aws//modules/ssh"
+  version             = ">= 1.0.0, < 2.0.0"
+  vespa_cloud_account = module.enclave.vespa_cloud_account
 }
 ```

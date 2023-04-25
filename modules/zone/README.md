@@ -13,15 +13,16 @@ For this module to work the [top-level module](../../) must also be configured.
 
 ```
 module "enclave" {
-    source = "../../Source/terraform-enclave-aws"
-    tenant_name = "vespa"
+  source      = "vespa-cloud/enclave/aws"
+  version     = ">= 1.0.0, < 2.0.0"
+  tenant_name = "<vespa cloud tenant>"
 }
 
 module "zone_prod_us_east_1c" {
-    source = "../../Source/terraform-enclave-aws/modules/zone"
-    zone = module.enclave.zones.prod.aws_us_east_1c
-    providers = {
-        aws = aws.us_east_1
-    }
+  source  = "vespa-cloud/enclave/aws//modules//zone"
+  version = ">= 1.0.0, < 2.0.0"
+  providers = {
+    aws = aws.us_east_1
+  }
 }
 ```
