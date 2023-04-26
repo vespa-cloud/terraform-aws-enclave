@@ -23,9 +23,11 @@ resource "aws_s3_bucket" "archive" {
   }
 }
 
-resource "aws_s3_bucket_acl" "archive" {
+resource "aws_s3_bucket_ownership_controls" "archive" {
   bucket = aws_s3_bucket.archive.id
-  acl    = "private"
+  rule {
+    object_ownership = "BucketOwnerEnforced"
+  }
 }
 
 resource "aws_s3_bucket_versioning" "archive" {
