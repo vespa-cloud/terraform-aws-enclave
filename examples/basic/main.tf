@@ -23,5 +23,5 @@ module "enclave" {
 module "zone_dev_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
   version = ">= 1.0.0, < 2.0.0"
-  zone    = module.enclave.zones.dev.us_east_1c
+  zone    = module.enclave.zones.dev.aws_us_east_1c
 }
