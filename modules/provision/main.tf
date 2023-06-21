@@ -276,7 +276,9 @@ resource "aws_iam_role" "vespa_cloud_provisioner_role" {
 
 resource "aws_iam_policy" "vespa_cloud_provision_policy" {
   name   = "vespa-cloud-provisioner-policy"
-  policy = var.is_cd ? data.aws_iam_policy_document.provision_policy_cd.json : data.aws_iam_policy_document.provision_policy.json
+  policy = (var.is_cd ?
+     data.aws_iam_policy_document.provision_policy_cd.json :
+     data.aws_iam_policy_document.provision_policy.json)
   tags = {
     managedby = "vespa-cloud"
   }
