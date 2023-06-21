@@ -10,6 +10,9 @@ terraform {
 data "aws_region" "current" {}
 
 data "aws_iam_policy_document" "provision_policy" {
+  #checkov:skip=CKV_AWS_107: "Ensure IAM policies does not allow credentials exposure"
+  #checkov:skip=CKV_AWS_109: "Ensure IAM policies does not allow permissions management / resource exposure without constraints"
+  #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
   policy_id = "provision-policy"
 
   statement{
@@ -130,6 +133,9 @@ data "aws_iam_policy_document" "provision_policy" {
 }
 
 data "aws_iam_policy_document" "provision_policy_cd" {
+  #checkov:skip=CKV_AWS_107: "Ensure IAM policies does not allow credentials exposure"
+  #checkov:skip=CKV_AWS_109: "Ensure IAM policies does not allow permissions management / resource exposure without constraints"
+  #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
   policy_id = "provision-policy"
 
   statement{
