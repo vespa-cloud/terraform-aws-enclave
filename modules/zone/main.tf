@@ -197,6 +197,7 @@ resource "aws_network_acl" "main" {
 }
 
 resource "aws_network_acl_rule" "in_vpc_ipv4" {
+  #checkov:skip=CKV_AWS_352:All ports open here, but limited by iptables on the host
   network_acl_id = aws_network_acl.main.id
   rule_number    = 100
   protocol       = "-1"
@@ -268,6 +269,7 @@ resource "aws_network_acl_rule" "in_any_https_ipv6" {
 
 # Permitted under AWS-4007/4008 baseline - ideally we should also permit ICMPv6 "Too Big", see PCLOUD-7589
 resource "aws_network_acl_rule" "in_any_icmp_fragmentation_needed" {
+  #checkov:skip=CKV_AWS_352:All ports open here, but limited by iptables on the host
   network_acl_id = aws_network_acl.main.id
   rule_number    = 140
   protocol       = "1"
@@ -393,6 +395,7 @@ data "aws_iam_policy_document" "ebs_key" {
 
     #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
     #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
+    #checkov:skip=CKV_AWS_356:This is a key policy. Resource must be '*'
     resources = [ "*" ]
   }
 
@@ -416,6 +419,7 @@ data "aws_iam_policy_document" "ebs_key" {
 
     #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
     #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
+    #checkov:skip=CKV_AWS_356:This is a key policy. Resource must be '*'
     resources = [ "*" ]
   }
 
@@ -431,6 +435,7 @@ data "aws_iam_policy_document" "ebs_key" {
 
     #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
     #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
+    #checkov:skip=CKV_AWS_356:This is a key policy. Resource must be '*'
     resources = [ "*" ]
   }
 }
