@@ -28,3 +28,4 @@ jobs:
         uses: bridgecrewio/checkov-action@master
         with:
           framework: terraform
+          download_external_modules: false
