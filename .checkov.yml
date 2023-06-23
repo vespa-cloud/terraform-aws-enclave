@@ -4,6 +4,8 @@
 download-external-modules: true
 evaluate-variables: true
 skip-framework: secrets
+skip-path:
+- examples/
 
 
 # ---------------------------------------------------------------------------------------------------------------------
