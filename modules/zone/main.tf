@@ -197,7 +197,7 @@ resource "aws_network_acl" "main" {
 }
 
 resource "aws_network_acl_rule" "in_vpc_ipv4" {
-  #checkov:skip=CKV_AWS_352:All ports open here, but limited by iptables on the host
+  #checkov:skip=CKV_AWS_352:All ports open inside VPC here, but limited by iptables on the host
   network_acl_id = aws_network_acl.main.id
   rule_number    = 100
   protocol       = "-1"
@@ -208,6 +208,7 @@ resource "aws_network_acl_rule" "in_vpc_ipv4" {
 }
 
 resource "aws_network_acl_rule" "in_vpc_ipv6" {
+  #checkov:skip=CKV_AWS_352:All ports open inside VPC here, but limited by iptables on the host
   network_acl_id  = aws_network_acl.main.id
   rule_number     = 110
   protocol        = "-1"
