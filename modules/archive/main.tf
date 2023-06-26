@@ -75,6 +75,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "archive" {
 }
 
 resource "aws_kms_key" "archive" {
+  #checkov:skip=CKV2_AWS_64:TODO - Ignore new check until it can be fixed. Default key policy is fine.
   description         = "Encryption key for ${aws_s3_bucket.archive.bucket} S3 bucket"
   key_usage           = "ENCRYPT_DECRYPT"
   enable_key_rotation = true

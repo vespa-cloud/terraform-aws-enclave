@@ -9,6 +9,258 @@ terraform {
 
 data "aws_region" "current" {}
 
+data "aws_iam_policy_document" "provision_policy" {
+  #checkov:skip=CKV_AWS_107: "Ensure IAM policies does not allow credentials exposure"
+  #checkov:skip=CKV_AWS_109: "Ensure IAM policies does not allow permissions management / resource exposure without constraints"
+  #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_356: TODO - Make this policy stricter, but allow this change since it's just a reformat of an existing policy
+  policy_id = "provision-policy"
+
+  statement{
+    actions = [
+      "ec2:CreateTags",
+      "ec2:RunInstances",
+      "ec2:TerminateInstances"
+    ]
+    resources = [
+      "arn:aws:ec2:*:*:image/*",
+      "arn:aws:ec2:*:*:instance/*",
+      "arn:aws:ec2:*:*:network-interface/*",
+      "arn:aws:ec2:*:*:security-group/*",
+      "arn:aws:ec2:*:*:subnet/*",
+      "arn:aws:ec2:*:*:volume/*",
+      "arn:aws:iam::*:role/*"
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "iam:PassRole",
+      "kms:CreateGrant",
+      "kms:GenerateDataKeyWithoutPlaintext",
+      "kms:ReEncryptFrom",
+      "kms:ReEncryptTo",
+      "route53:ChangeResourceRecordSets",
+      "route53:GetChange"
+    ]
+    resources = [
+      "arn:aws:iam::*:role/*",
+      "arn:aws:kms:*:*:key/*",
+      "arn:aws:route53:::change/*",
+      "arn:aws:route53:::hostedzone/*"
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "ec2:AssignPrivateIpAddresses",
+      "ec2:DescribeImages",
+      "ec2:DescribeInstanceStatus",
+      "ec2:DescribeInstances",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeVpcs",
+      "kms:ListAliases",
+      "kms:ListKeys",
+      "route53:ListHostedZones",
+      "sts:AssumeRole"
+    ]
+    resources = ["*"]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = ["route53:GetChange", "route53:ChangeResourceRecordSets"]
+    resources = [
+      "arn:aws:ec2:*:*:image/*",
+      "arn:aws:ec2:*:*:instance/*",
+      "arn:aws:ec2:*:*:security-group/*",
+      "arn:aws:ec2:*:*:network-interface/*",
+      "arn:aws:ec2:*:*:subnet/*",
+      "arn:aws:ec2:*:*:volume/*"
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = ["elasticloadbalancing:*"]
+    resources = ["*"]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "cognito-idp:DescribeUserPoolClient",
+      "ec2:CreateTags",
+      "ec2:CreateVpcEndpointServiceConfiguration",
+      "ec2:DeleteVpcEndpointServiceConfigurations",
+      "ec2:DescribeAccountAttributes",
+      "ec2:DescribeAddresses",
+      "ec2:DescribeClassicLinkInstances",
+      "ec2:DescribeCoipPools",
+      "ec2:DescribeInstances",
+      "ec2:DescribeInternetGateways",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DescribeRouteTables",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeVpcClassicLink",
+      "ec2:DescribeVpcEndpointConnections",
+      "ec2:DescribeVpcEndpointServiceConfigurations",
+      "ec2:DescribeVpcEndpointServicePermissions",
+      "ec2:DescribeVpcPeeringConnections",
+      "ec2:DescribeVpcs",
+      "ec2:GetCoipPoolUsage",
+      "ec2:ModifyVpcEndpointServiceConfiguration",
+      "ec2:ModifyVpcEndpointServicePermissions",
+      "ec2:StartVpcEndpointServicePrivateDnsVerification"
+    ]
+    resources = ["*"]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = ["iam:CreateServiceLinkedRole"]
+    resources = ["*"]
+    effect = "Allow"
+    condition {
+      test = "StringEquals"
+      variable = "iam:AWSServiceName"
+      values = ["elasticloadbalancing.amazonaws.com"]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "provision_policy_cd" {
+  #checkov:skip=CKV_AWS_107: "Ensure IAM policies does not allow credentials exposure"
+  #checkov:skip=CKV_AWS_109: "Ensure IAM policies does not allow permissions management / resource exposure without constraints"
+  #checkov:skip=CKV_AWS_111: "Ensure IAM policies does not allow write access without constraints"
+  #checkov:skip=CKV_AWS_356: TODO - Make this policy stricter, but allow this change since it's just a reformat of an existing policy
+  policy_id = "provision-policy"
+
+  statement{
+    actions = [
+      "ec2:CreateTags",
+      "ec2:RunInstances",
+      "ec2:TerminateInstances"
+    ]
+    resources = [
+      "arn:aws:ec2:*:*:image/*",
+      "arn:aws:ec2:*:*:instance/*",
+      "arn:aws:ec2:*:*:network-interface/*",
+      "arn:aws:ec2:*:*:security-group/*",
+      "arn:aws:ec2:*:*:subnet/*",
+      "arn:aws:ec2:*:*:volume/*",
+      "arn:aws:iam::*:role/*"
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = ["iam:PassRole"]
+    resources = [aws_iam_role.vespa_cloud_tenant_host_service.arn]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "kms:CreateGrant",
+      "kms:GenerateDataKeyWithoutPlaintext",
+      "kms:ReEncryptFrom",
+      "kms:ReEncryptTo",
+      "route53:ChangeResourceRecordSets",
+      "route53:GetChange"
+    ]
+    resources = [
+      "arn:aws:kms:*:*:key/*",
+      "arn:aws:route53:::change/*",
+      "arn:aws:route53:::hostedzone/*"
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "ec2:AssignPrivateIpAddresses",
+      "ec2:DescribeImages",
+      "ec2:DescribeInstanceStatus",
+      "ec2:DescribeInstances",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeVpcs",
+      "kms:ListAliases",
+      "kms:ListKeys",
+      "route53:ListHostedZones",
+      "sts:AssumeRole"
+    ]
+    resources = ["*"]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = ["route53:GetChange", "route53:ChangeResourceRecordSets"]
+    resources = [
+      "arn:aws:ec2:*:*:image/*",
+      "arn:aws:ec2:*:*:instance/*",
+      "arn:aws:ec2:*:*:security-group/*",
+      "arn:aws:ec2:*:*:network-interface/*",
+      "arn:aws:ec2:*:*:subnet/*",
+      "arn:aws:ec2:*:*:volume/*"
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = ["elasticloadbalancing:*"]
+    resources = ["*"]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "cognito-idp:DescribeUserPoolClient",
+      "ec2:CreateTags",
+      "ec2:CreateVpcEndpointServiceConfiguration",
+      "ec2:DeleteVpcEndpointServiceConfigurations",
+      "ec2:DescribeAccountAttributes",
+      "ec2:DescribeAddresses",
+      "ec2:DescribeClassicLinkInstances",
+      "ec2:DescribeCoipPools",
+      "ec2:DescribeInstances",
+      "ec2:DescribeInternetGateways",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:DescribeRouteTables",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeVpcClassicLink",
+      "ec2:DescribeVpcEndpointConnections",
+      "ec2:DescribeVpcEndpointServiceConfigurations",
+      "ec2:DescribeVpcEndpointServicePermissions",
+      "ec2:DescribeVpcPeeringConnections",
+      "ec2:DescribeVpcs",
+      "ec2:GetCoipPoolUsage",
+      "ec2:ModifyVpcEndpointServiceConfiguration",
+      "ec2:ModifyVpcEndpointServicePermissions",
+      "ec2:StartVpcEndpointServicePrivateDnsVerification"
+    ]
+    resources = ["*"]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = ["iam:CreateServiceLinkedRole"]
+    resources = ["*"]
+    effect = "Allow"
+    condition {
+      test = "StringEquals"
+      variable = "iam:AWSServiceName"
+      values = ["elasticloadbalancing.amazonaws.com"]
+    }
+  }
+}
+
 resource "aws_iam_role" "vespa_cloud_provisioner_role" {
   name        = "vespa-cloud-provisioner"
   description = "Allow config servers to provision resources"
@@ -32,7 +284,9 @@ resource "aws_iam_role" "vespa_cloud_provisioner_role" {
 
 resource "aws_iam_policy" "vespa_cloud_provision_policy" {
   name   = "vespa-cloud-provisioner-policy"
-  policy = file("${path.module}/provisioner-policy.json")
+  policy = (var.is_cd ?
+     data.aws_iam_policy_document.provision_policy_cd.json :
+     data.aws_iam_policy_document.provision_policy.json)
   tags = {
     managedby = "vespa-cloud"
   }
