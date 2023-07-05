@@ -95,6 +95,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:DescribeRouteTables",
       "ec2:DescribeSecurityGroups",
       "ec2:DescribeSubnets",
+      "ec2:DescribeVolumes",
       "ec2:DescribeVpcClassicLink",
       "ec2:DescribeVpcEndpointConnections",
       "ec2:DescribeVpcEndpointServiceConfigurations",
