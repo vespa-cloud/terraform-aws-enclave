@@ -58,24 +58,6 @@ data "aws_iam_policy_document" "provision_policy" {
   }
 
   statement {
-    actions = [
-      "ec2:AssignPrivateIpAddresses",
-      "ec2:DescribeImages",
-      "ec2:DescribeInstanceStatus",
-      "ec2:DescribeInstances",
-      "ec2:DescribeSecurityGroups",
-      "ec2:DescribeSubnets",
-      "ec2:DescribeVpcs",
-      "kms:ListAliases",
-      "kms:ListKeys",
-      "route53:ListHostedZones",
-      "sts:AssumeRole"
-    ]
-    resources = ["*"]
-    effect = "Allow"
-  }
-
-  statement {
     actions = ["route53:GetChange", "route53:ChangeResourceRecordSets"]
     resources = [
       "arn:aws:ec2:*:*:image/*",
@@ -97,6 +79,7 @@ data "aws_iam_policy_document" "provision_policy" {
   statement {
     actions = [
       "cognito-idp:DescribeUserPoolClient",
+      "ec2:AssignPrivateIpAddresses",
       "ec2:CreateTags",
       "ec2:CreateVpcEndpointServiceConfiguration",
       "ec2:DeleteVpcEndpointServiceConfigurations",
@@ -104,6 +87,8 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:DescribeAddresses",
       "ec2:DescribeClassicLinkInstances",
       "ec2:DescribeCoipPools",
+      "ec2:DescribeImages",
+      "ec2:DescribeInstanceStatus",
       "ec2:DescribeInstances",
       "ec2:DescribeInternetGateways",
       "ec2:DescribeNetworkInterfaces",
@@ -119,7 +104,11 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:GetCoipPoolUsage",
       "ec2:ModifyVpcEndpointServiceConfiguration",
       "ec2:ModifyVpcEndpointServicePermissions",
-      "ec2:StartVpcEndpointServicePrivateDnsVerification"
+      "ec2:StartVpcEndpointServicePrivateDnsVerification",
+      "kms:ListAliases",
+      "kms:ListKeys",
+      "route53:ListHostedZones",
+      "sts:AssumeRole",
     ]
     resources = ["*"]
     effect = "Allow"
