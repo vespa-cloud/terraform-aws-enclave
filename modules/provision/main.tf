@@ -105,6 +105,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:GetCoipPoolUsage",
       "ec2:ModifyVpcEndpointServiceConfiguration",
       "ec2:ModifyVpcEndpointServicePermissions",
+      "ec2:StartInstances",
       "ec2:StartVpcEndpointServicePrivateDnsVerification",
       "kms:ListAliases",
       "kms:ListKeys",
