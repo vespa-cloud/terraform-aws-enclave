@@ -20,7 +20,8 @@ data "aws_iam_policy_document" "provision_policy" {
     actions = [
       "ec2:CreateTags",
       "ec2:RunInstances",
-      "ec2:TerminateInstances"
+      "ec2:TerminateInstances",
+      "ec2:CreateVolume"
     ]
     resources = [
       "arn:aws:ec2:*:*:image/*",
