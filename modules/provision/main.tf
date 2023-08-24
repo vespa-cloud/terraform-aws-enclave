@@ -18,10 +18,14 @@ data "aws_iam_policy_document" "provision_policy" {
 
   statement{
     actions = [
+      "ec2:AttachVolume",
       "ec2:CreateTags",
+      "ec2:CreateVolume",
+      "ec2:DeleteVolume",
+      "ec2:DetachVolume",
+      "ec2:ModifyInstanceAttribute",
       "ec2:RunInstances",
-      "ec2:TerminateInstances",
-      "ec2:CreateVolume"
+      "ec2:TerminateInstances"
     ]
     resources = [
       "arn:aws:ec2:*:*:image/*",
