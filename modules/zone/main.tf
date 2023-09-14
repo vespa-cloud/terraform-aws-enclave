@@ -54,6 +54,8 @@ resource "aws_subnet" "hosts" {
   tags = {
     Name      = "${var.zone.tag}-subnet-tenant" # TODO: Change to zone.name
     managedby = "vespa-cloud"
+    zone      = var.zone.name
+    service   = "tenant"
   }
 }
 
@@ -66,6 +68,8 @@ resource "aws_subnet" "lb" {
   tags = {
     Name      = "${var.zone.tag}-subnet-tenantelb"
     managedby = "vespa-cloud"
+    zone      = var.zone.name
+    service   = "tenantelb"
   }
 }
 
@@ -78,6 +82,8 @@ resource "aws_subnet" "natgw" {
   tags = {
     Name      = "${var.zone.name}-subnet-natgw"
     managedby = "vespa-cloud"
+    zone      = var.zone.name
+    service   = "natgw"
   }
 }
 
@@ -313,6 +319,8 @@ resource "aws_security_group" "sg" {
   tags = {
     Name      = "${var.zone.name}-vpc-sg"
     managedby = "vespa-cloud"
+    zone      = var.zone.name
+    service   = "hostedvpc"
   }
 }
 
@@ -368,6 +376,8 @@ resource "aws_vpc_endpoint" "ecr_s3" {
   tags = {
     Name      = "vespa-s3gw-${var.zone.name}"
     managedby = "vespa-cloud"
+    zone      = var.zone.name
+    service   = "s3"
   }
 }
 
