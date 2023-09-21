@@ -1,5 +1,6 @@
 
 locals {
+  template_version = "1.0.5"
   az_by_region = var.is_cd ? {
     aws-us-east-1c = "use1-az2",
     } : {
@@ -26,7 +27,14 @@ locals {
   zones_by_env = {
     for zone in local.all_zones :
     zone.environment => merge(
-    { name = "${zone.environment}.${zone.region}", is_cd = var.is_cd, az = local.az_by_region[zone.region] }, zone)...
+      {
+        name             = "${zone.environment}.${zone.region}",
+        is_cd            = var.is_cd,
+        az               = local.az_by_region[zone.region],
+        template_version = local.template_version,
+      },
+      zone
+    )...
   }
 }
 

@@ -26,10 +26,11 @@ resource "aws_vpc" "main" {
   assign_generated_ipv6_cidr_block = true
   enable_dns_hostnames             = true
   tags = {
-    Name           = var.zone.tag # TODO Change to zone.name
-    managedby      = "vespa-cloud"
-    zone           = var.zone.name
-    archive_bucket = module.archive.bucket
+    Name                   = var.zone.tag # TODO Change to zone.name
+    managedby              = "vespa-cloud"
+    zone                   = var.zone.name
+    archive_bucket         = module.archive.bucket
+    vespa_template_version = var.zone.template_version
   }
 }
 
