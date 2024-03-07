@@ -386,6 +386,10 @@ resource "aws_vpc_endpoint" "ecr_s3" {
 
 data "aws_caller_identity" "current" {}
 
+data "aws_iam_session_context" "current" {
+  arn = data.aws_caller_identity.current.arn
+}
+
 data "aws_iam_policy_document" "ebs_key" {
   policy_id = "key-default-1"
 
@@ -442,7 +446,15 @@ data "aws_iam_policy_document" "ebs_key" {
 
     principals {
       type        = "AWS"
-      identifiers = [data.aws_caller_identity.current.arn]
+      identifiers = [
+        # The data.aws_caller_identity.current.arn resolves to an sts assumed role.
+        # If the context changes, this will lock access to the key to the assumed role
+        # and not the iam role.
+        data.aws_caller_identity.current.arn,
+
+        # The data.aws_iam_session_context.current.issuer_arn resolves to the correct IAM role
+        data.aws_iam_session_context.current.issuer_arn
+      ]
     }
 
     #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
