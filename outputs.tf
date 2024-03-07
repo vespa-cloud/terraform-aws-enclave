@@ -1,6 +1,6 @@
 
 locals {
-  template_version = "1.0.5"
+  template_version = "1.0.6"
   az_by_region = var.is_cd ? {
     aws-us-east-1c = "use1-az2",
     } : {

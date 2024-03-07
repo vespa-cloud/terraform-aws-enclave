@@ -386,6 +386,10 @@ resource "aws_vpc_endpoint" "ecr_s3" {
 
 data "aws_caller_identity" "current" {}
 
+data "aws_iam_session_context" "current" {
+  arn = data.aws_caller_identity.current.arn
+}
+
 data "aws_iam_policy_document" "ebs_key" {
   policy_id = "key-default-1"
 
@@ -442,7 +446,7 @@ data "aws_iam_policy_document" "ebs_key" {
 
     principals {
       type        = "AWS"
-      identifiers = [data.aws_caller_identity.current.arn]
+      identifiers = [data.aws_iam_session_context.current.issuer_arn]
     }
 
     #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
