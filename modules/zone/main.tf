@@ -412,7 +412,7 @@ data "aws_iam_policy_document" "ebs_key" {
     #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
     #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
     #checkov:skip=CKV_AWS_356:This is a key policy. Resource must be '*'
-    resources = [ "*" ]
+    resources = ["*"]
   }
 
   statement {
@@ -436,13 +436,13 @@ data "aws_iam_policy_document" "ebs_key" {
     #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
     #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
     #checkov:skip=CKV_AWS_356:This is a key policy. Resource must be '*'
-    resources = [ "*" ]
+    resources = ["*"]
   }
 
   statement {
     effect = "Allow"
 
-    actions = [ "kms:*" ]
+    actions = ["kms:*"]
 
     principals {
       type        = "AWS"
@@ -452,7 +452,7 @@ data "aws_iam_policy_document" "ebs_key" {
     #checkov:skip=CKV_AWS_109:This is a key policy. Resource must be '*'
     #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
     #checkov:skip=CKV_AWS_356:This is a key policy. Resource must be '*'
-    resources = [ "*" ]
+    resources = ["*"]
   }
 }
 
@@ -462,10 +462,7 @@ resource "aws_kms_key" "ebs" {
   enable_key_rotation     = true
   policy                  = data.aws_iam_policy_document.ebs_key.json
   deletion_window_in_days = 7
-  tags = var.zone.is_cd ? {
-    managedby          = "vespa-cloud"
-    "eh:DeleteConsent" = "Integration test"
-    } : {
+  tags = {
     managedby = "vespa-cloud"
   }
 }
