@@ -38,7 +38,7 @@ module "zone_test_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
   version = ">= 1.0.0, < 2.0.0"
   zone    = module.enclave.zones.test.aws_us_east_1c
-    providers = {
+  providers = {
     aws = aws.us_east_1
   }
 }

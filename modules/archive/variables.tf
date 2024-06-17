@@ -7,6 +7,5 @@ variable "zone" {
     name        = string,
     tag         = string,
     az          = string,
-    is_cd       = bool,
   })
 }

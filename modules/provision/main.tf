@@ -16,7 +16,7 @@ data "aws_iam_policy_document" "provision_policy" {
   #checkov:skip=CKV_AWS_356: TODO - Make this policy stricter, but allow this change since it's just a reformat of an existing policy
   policy_id = "provision-policy"
 
-  statement{
+  statement {
     actions = [
       "ec2:AttachVolume",
       "ec2:CreateTags",
@@ -40,9 +40,9 @@ data "aws_iam_policy_document" "provision_policy" {
   }
 
   statement {
-    actions = ["iam:PassRole"]
+    actions   = ["iam:PassRole"]
     resources = [aws_iam_role.vespa_cloud_tenant_host_service.arn]
-    effect = "Allow"
+    effect    = "Allow"
   }
 
   statement {
@@ -76,9 +76,9 @@ data "aws_iam_policy_document" "provision_policy" {
   }
 
   statement {
-    actions = ["elasticloadbalancing:*"]
+    actions   = ["elasticloadbalancing:*"]
     resources = ["*"]
-    effect = "Allow"
+    effect    = "Allow"
   }
 
   statement {
@@ -118,17 +118,17 @@ data "aws_iam_policy_document" "provision_policy" {
       "sts:AssumeRole",
     ]
     resources = ["*"]
-    effect = "Allow"
+    effect    = "Allow"
   }
 
   statement {
-    actions = ["iam:CreateServiceLinkedRole"]
+    actions   = ["iam:CreateServiceLinkedRole"]
     resources = ["*"]
-    effect = "Allow"
+    effect    = "Allow"
     condition {
-      test = "StringEquals"
+      test     = "StringEquals"
       variable = "iam:AWSServiceName"
-      values = ["elasticloadbalancing.amazonaws.com"]
+      values   = ["elasticloadbalancing.amazonaws.com"]
     }
   }
 }
@@ -164,9 +164,9 @@ resource "aws_iam_policy" "vespa_cloud_provision_policy" {
 
 resource "aws_iam_policy" "vespa_cloud_host_policy" {
   #checkov:skip=CKV_AWS_290: Resource '*' is OK because we have a condition
-  name   = "vespa-cloud-host-policy"
+  name = "vespa-cloud-host-policy"
   policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [
       { # Allow hosts to upload to their archive bucket
         Effect = "Allow"
@@ -177,12 +177,12 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
         Resource = "arn:aws:s3:::vespa-archive-*"
       },
       { # Allow hosts to generate data key to encrypt when uploading to archive bucket
-        Effect    = "Allow"
-        Action    = "kms:GenerateDataKey"
-        Resource  = "*"
+        Effect   = "Allow"
+        Action   = "kms:GenerateDataKey"
+        Resource = "*"
         Condition = {
           StringEquals = {
-            "kms:ViaService": "s3.${data.aws_region.current.name}.amazonaws.com"
+            "kms:ViaService" : "s3.${data.aws_region.current.name}.amazonaws.com"
           }
         }
       },

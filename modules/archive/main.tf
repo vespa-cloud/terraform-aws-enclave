@@ -10,9 +10,9 @@ terraform {
 data "aws_caller_identity" "current" {}
 
 resource "random_string" "archive" {
-  length   = 6
-  special  = false
-  upper    = false
+  length  = 6
+  special = false
+  upper   = false
 }
 
 resource "aws_s3_bucket" "archive" {
@@ -76,14 +76,11 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "archive" {
 
 resource "aws_kms_key" "archive" {
   #checkov:skip=CKV2_AWS_64:TODO - Ignore new check until it can be fixed. Default key policy is fine.
-  description         = "Encryption key for ${aws_s3_bucket.archive.bucket} S3 bucket"
-  key_usage           = "ENCRYPT_DECRYPT"
-  enable_key_rotation = true
+  description             = "Encryption key for ${aws_s3_bucket.archive.bucket} S3 bucket"
+  key_usage               = "ENCRYPT_DECRYPT"
+  enable_key_rotation     = true
   deletion_window_in_days = 7
-  tags = var.zone.is_cd ? {
-    managedby          = "vespa-cloud"
-    "eh:DeleteConsent" = "Integration test"
-  } : {
+  tags = {
     managedby = "vespa-cloud"
   }
 }
