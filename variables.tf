@@ -33,3 +33,13 @@ variable "all_zones" {
     { environment = "prod", region = "aws-ap-northeast-1a", tag = "prod.aws-apne-1a" },
   ]
 }
+
+variable "az_by_region" {
+  description = "Mapping between Availability Zone and Availability Zone ID for the Vespa Cloud AWS zones"
+  default = {
+    aws-us-east-1c      = "use1-az6",
+    aws-us-west-2a      = "usw2-az1",
+    aws-eu-west-1a      = "euw1-az2",
+    aws-ap-northeast-1a = "apne1-az4",
+  }
+}
