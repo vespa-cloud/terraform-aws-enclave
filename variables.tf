@@ -12,7 +12,7 @@ variable "tenant_name" {
 
 variable "vespa_cloud_account" {
   description = "The account the Vespa Cloud provisioner resides in"
-  default     = "786426250597"
+  default     = "332934501266"
 }
 
 variable "all_zones" {
