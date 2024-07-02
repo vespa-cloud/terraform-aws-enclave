@@ -20,3 +20,10 @@ variable "zone_ipv4_cidr" {
     error_message = "CIDR for the zone network must be /16 and must be within 10.0.0.0/8"
   }
 }
+
+variable "zone_az" {
+  description = "Override AWS AZ for Vespa Cloud zone (EXPERIMENTAL)"
+  type        = string
+  default     = null
+  nullable    = true
+}

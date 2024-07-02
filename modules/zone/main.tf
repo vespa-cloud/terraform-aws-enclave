@@ -10,10 +10,11 @@ terraform {
 locals {
   hosts_cidr_block      = cidrsubnet(var.zone_ipv4_cidr, 1, 1)
   hosts_ipv6_cidr_block = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
+  zone_az               = coalesce(var.zone_az, var.zone.az)
 }
 
 data "aws_availability_zone" "current" {
-  zone_id = var.zone.az
+  zone_id = locals.zone_az
 }
 
 module "archive" {
