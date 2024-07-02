@@ -10,16 +10,21 @@ terraform {
 locals {
   hosts_cidr_block      = cidrsubnet(var.zone_ipv4_cidr, 1, 1)
   hosts_ipv6_cidr_block = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
-  zone_az               = coalesce(var.zone_az, var.zone.az)
+  zone                  = merge(
+    var.zone,
+    {
+      az = coalesce(var.zone_az, var.zone.az)
+    }
+  )
 }
 
 data "aws_availability_zone" "current" {
-  zone_id = locals.zone_az
+  zone_id = local.zone.az
 }
 
 module "archive" {
   source = "../archive"
-  zone   = var.zone
+  zone   = local.zone
 }
 
 resource "aws_vpc" "main" {
@@ -27,11 +32,11 @@ resource "aws_vpc" "main" {
   assign_generated_ipv6_cidr_block = true
   enable_dns_hostnames             = true
   tags = {
-    Name                   = var.zone.tag # TODO Change to zone.name
+    Name                   = local.zone.tag # TODO Change to zone.name
     managedby              = "vespa-cloud"
-    zone                   = var.zone.name
+    zone                   = local.zone.name
     archive_bucket         = module.archive.bucket
-    vespa_template_version = var.zone.template_version
+    vespa_template_version = local.zone.template_version
   }
 }
 
@@ -54,9 +59,9 @@ resource "aws_subnet" "hosts" {
   assign_ipv6_address_on_creation = true
   availability_zone               = data.aws_availability_zone.current.name
   tags = {
-    Name      = "${var.zone.tag}-subnet-tenant" # TODO: Change to zone.name
+    Name      = "${local.zone.tag}-subnet-tenant" # TODO: Change to zone.name
     managedby = "vespa-cloud"
-    zone      = var.zone.name
+    zone      = local.zone.name
     service   = "tenant"
   }
 }
@@ -68,9 +73,9 @@ resource "aws_subnet" "lb" {
   assign_ipv6_address_on_creation = true
   availability_zone               = data.aws_availability_zone.current.name
   tags = {
-    Name      = "${var.zone.tag}-subnet-tenantelb"
+    Name      = "${local.zone.tag}-subnet-tenantelb"
     managedby = "vespa-cloud"
-    zone      = var.zone.name
+    zone      = local.zone.name
     service   = "tenantelb"
   }
 }
@@ -82,9 +87,9 @@ resource "aws_subnet" "natgw" {
   assign_ipv6_address_on_creation = true
   availability_zone               = data.aws_availability_zone.current.name
   tags = {
-    Name      = "${var.zone.name}-subnet-natgw"
+    Name      = "${local.zone.name}-subnet-natgw"
     managedby = "vespa-cloud"
-    zone      = var.zone.name
+    zone      = local.zone.name
     service   = "natgw"
   }
 }
@@ -94,14 +99,14 @@ resource "aws_subnet" "natgw" {
 resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = "${var.zone.name}-igw"
+    Name      = "${local.zone.name}-igw"
     managedby = "vespa-cloud"
   }
 }
 
 resource "aws_eip" "natgw" {
   tags = {
-    Name      = "${var.zone.name}-eip-natgw"
+    Name      = "${local.zone.name}-eip-natgw"
     managedby = "vespa-cloud"
   }
 }
@@ -110,7 +115,7 @@ resource "aws_nat_gateway" "gw" {
   allocation_id = aws_eip.natgw.id
   subnet_id     = aws_subnet.natgw.id
   tags = {
-    Name      = "${var.zone.name}-natgw"
+    Name      = "${local.zone.name}-natgw"
     managedby = "vespa-cloud"
   }
   # To ensure proper ordering, it is recommended to add an explicit dependency
@@ -123,7 +128,7 @@ resource "aws_nat_gateway" "gw" {
 resource "aws_route_table" "hosts" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = "${var.zone.name}-rt"
+    Name      = "${local.zone.name}-rt"
     managedby = "vespa-cloud"
   }
 }
@@ -148,7 +153,7 @@ resource "aws_route_table_association" "hosts" {
 resource "aws_route_table" "lb" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = "${var.zone.name}-igw-rt"
+    Name      = "${local.zone.name}-igw-rt"
     managedby = "vespa-cloud"
   }
 }
@@ -173,7 +178,7 @@ resource "aws_route_table_association" "lb" {
 resource "aws_route_table" "natgw" {
   vpc_id = aws_vpc.main.id
   tags = {
-    Name      = "${var.zone.name}-natgw-rt"
+    Name      = "${local.zone.name}-natgw-rt"
     managedby = "vespa-cloud"
   }
 }
@@ -199,7 +204,7 @@ resource "aws_network_acl" "main" {
     aws_subnet.natgw.id,
   ]
   tags = {
-    Name      = "${var.zone.name}-nacl"
+    Name      = "${local.zone.name}-nacl"
     managedby = "vespa-cloud"
   }
 }
@@ -315,13 +320,13 @@ resource "aws_network_acl_rule" "out_ipv6" {
 # Security groups
 
 resource "aws_security_group" "sg" {
-  name        = "${var.zone.name}-sg-hostedvpc"
+  name        = "${local.zone.name}-sg-hostedvpc"
   description = "Vespa security group"
   vpc_id      = aws_vpc.main.id
   tags = {
-    Name      = "${var.zone.name}-vpc-sg"
+    Name      = "${local.zone.name}-vpc-sg"
     managedby = "vespa-cloud"
-    zone      = var.zone.name
+    zone      = local.zone.name
     service   = "hostedvpc"
   }
 }
@@ -360,7 +365,7 @@ resource "aws_vpc_endpoint" "interface" {
   private_dns_enabled = true
   service_name        = "com.amazonaws.${data.aws_region.current.name}.${each.key}"
   tags = {
-    Name      = "vespa-${replace(each.key, ".", "-")}-${var.zone.name}"
+    Name      = "vespa-${replace(each.key, ".", "-")}-${local.zone.name}"
     managedby = "vespa-cloud"
   }
   # This has an interface in a subnet. If the subnet used by this is replaced,
@@ -376,9 +381,9 @@ resource "aws_vpc_endpoint" "ecr_s3" {
   vpc_endpoint_type = "Gateway"
   service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
   tags = {
-    Name      = "vespa-s3gw-${var.zone.name}"
+    Name      = "vespa-s3gw-${local.zone.name}"
     managedby = "vespa-cloud"
-    zone      = var.zone.name
+    zone      = local.zone.name
     service   = "s3"
   }
 }
@@ -469,6 +474,6 @@ resource "aws_kms_key" "ebs" {
 }
 
 resource "aws_kms_alias" "ebs" {
-  name          = "alias/vespa-ebs-key-${var.zone.environment}-${var.zone.region}"
+  name          = "alias/vespa-ebs-key-${local.zone.environment}-${local.zone.region}"
   target_key_id = aws_kms_key.ebs.key_id
 }
