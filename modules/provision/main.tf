@@ -7,8 +7,6 @@ terraform {
   }
 }
 
-data "aws_region" "current" {}
-
 data "aws_iam_policy_document" "provision_policy" {
   #checkov:skip=CKV_AWS_107: "Ensure IAM policies does not allow credentials exposure"
   #checkov:skip=CKV_AWS_109: "Ensure IAM policies does not allow permissions management / resource exposure without constraints"
@@ -181,8 +179,8 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
         Action   = "kms:GenerateDataKey"
         Resource = "*"
         Condition = {
-          StringEquals = {
-            "kms:ViaService" : "s3.${data.aws_region.current.name}.amazonaws.com"
+          StringLike = {
+            "kms:ViaService" : "s3.*.amazonaws.com"
           }
         }
       },
