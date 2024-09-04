@@ -31,12 +31,21 @@ module "enclave" {
 #
 
 #
-# Set up the VPC that contains the Enclaved Vespa appplication's dev zone.
+# Set up the VPC that contains the Enclaved Vespa appplication's dev and perf zones.
 #
 module "zone_dev_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
   version = ">= 1.0.0, < 2.0.0"
   zone    = module.enclave.zones.dev.aws_us_east_1c
+  providers = {
+    aws = aws.us_east_1
+  }
+}
+
+module "zone_perf_us_east_1c" {
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = ">= 1.0.0, < 2.0.0"
+  zone    = module.enclave.zones.perf.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
   }
