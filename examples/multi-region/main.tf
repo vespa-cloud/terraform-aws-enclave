@@ -27,6 +27,14 @@ module "enclave" {
 }
 
 #
+# Enable SSH access for the Vespa team
+#
+# module "ssh" {
+#   source  = "vespa-cloud/enclave/aws//modules/ssh"
+#   vespa_cloud_account = module.enclave.vespa_cloud_account
+# }
+
+#
 # Set up the VPC that will contain the Enclaved Vespa appplication.
 #
 
