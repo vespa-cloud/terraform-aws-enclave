@@ -7,6 +7,12 @@ terraform {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
+locals {
+  bucket_resource_name = "backup-${data.aws_caller_identity.current.account_id}-*"
+}
+
 data "aws_iam_policy_document" "provision_policy" {
   #checkov:skip=CKV_AWS_107: "Ensure IAM policies does not allow credentials exposure"
   #checkov:skip=CKV_AWS_109: "Ensure IAM policies does not allow permissions management / resource exposure without constraints"
@@ -146,7 +152,10 @@ resource "aws_iam_role" "vespa_cloud_provisioner_role" {
       }
     ]
   })
-  managed_policy_arns = [aws_iam_policy.vespa_cloud_provision_policy.arn]
+  managed_policy_arns = [
+    aws_iam_policy.vespa_cloud_provision_policy.arn,
+    aws_iam_policy.vespa_cloud_backup_expiry_policy.arn,
+  ]
   tags = {
     managedby = "vespa-cloud"
   }
@@ -204,6 +213,67 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
   }
 }
 
+resource "aws_iam_policy" "vespa_cloud_host_backup_policy" {
+  name = "vespa-cloud-host-backup-policy"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "TenantHostAccess",
+        Effect = "Allow",
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject"
+        ],
+        # Snapshot content is stored under /snapshots/<hostname>/<uuid>/
+        Resource = "arn:aws:s3:::${local.bucket_resource_name}/snapshots/*/*/*"
+      },
+      {
+        Sid    = "TenantHostAccessList",
+        Effect = "Allow",
+        Action = [
+          "s3:ListBucket"
+        ],
+        # Allow node to list files under the snapshot path:
+        Condition = {
+          "StringLike" : {
+            "s3:prefix" : [
+              "snapshots/*/*/",
+              "snapshots/*/*/*"
+            ]
+          }
+        }
+        Resource = "arn:aws:s3:::${local.bucket_resource_name}"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "vespa_cloud_backup_expiry_policy" {
+  name = "vespa-cloud-backup-expiry-policy"
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid    = "ConfigServerAccess",
+        Effect = "Allow",
+        Action = [
+          "s3:DeleteObject"
+        ],
+        Resource = "arn:aws:s3:::${local.bucket_resource_name}/*"
+      },
+      {
+        Sid    = "ConfigServerAccessList",
+        Effect = "Allow",
+        Action = [
+          "s3:ListBucket"
+        ],
+        Resource = "arn:aws:s3:::${local.bucket_resource_name}"
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role" "vespa_cloud_tenant_host_service" {
   name = "vespa.tenant.${var.tenant_name}.aws-${var.account}.tenant-host-service"
   assume_role_policy = jsonencode({
@@ -222,7 +292,8 @@ resource "aws_iam_role" "vespa_cloud_tenant_host_service" {
   }
   managed_policy_arns = [
     "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    aws_iam_policy.vespa_cloud_host_policy.arn
+    aws_iam_policy.vespa_cloud_host_policy.arn,
+    aws_iam_policy.vespa_cloud_host_backup_policy.arn,
   ]
 }
 
