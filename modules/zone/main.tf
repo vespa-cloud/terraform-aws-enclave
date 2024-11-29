@@ -343,6 +343,7 @@ resource "aws_security_group_rule" "in_vpc" {
 }
 
 resource "aws_security_group_rule" "out_any" {
+  # checkov:skip=CKV_AWS_382:Allow all traffic out of the VPC
   security_group_id = aws_security_group.sg.id
   type              = "egress"
   from_port         = 0
