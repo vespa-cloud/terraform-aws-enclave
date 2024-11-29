@@ -477,3 +477,122 @@ resource "aws_kms_alias" "ebs" {
   name          = "alias/vespa-ebs-key-${local.zone.environment}-${local.zone.region}"
   target_key_id = aws_kms_key.ebs.key_id
 }
+
+# Backup storage
+
+resource "aws_s3_bucket" "backup" {
+  bucket = "backup-${data.aws_caller_identity.current.account_id}-${local.zone.environment}-${local.zone.region}"
+}
+
+resource "aws_s3_bucket_policy" "backup" {
+  bucket = aws_s3_bucket.backup.id
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Sid       = "RequiredSecureTransport",
+        Effect    = "Deny",
+        Principal = "*",
+        Action    = "*",
+        Resource  = "arn:aws:s3:::${aws_s3_bucket.backup.id}/*",
+        Condition = {
+          Bool = {
+            "aws:SecureTransport" = false
+          }
+        }
+      }
+    ]
+  })
+}
+
+resource "aws_s3_bucket_lifecycle_configuration" "backup" {
+  bucket = aws_s3_bucket.backup.id
+  rule {
+    id     = "remove-incomplete"
+    status = "Enabled"
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 2
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "backup" {
+  bucket                  = aws_s3_bucket.backup.id
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "backup" {
+  bucket = aws_s3_bucket.backup.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm     = "aws:kms"
+      kms_master_key_id = aws_kms_key.backup.arn
+    }
+  }
+}
+resource "aws_kms_key" "backup" {
+  description         = "KMS key for backup bucket"
+  enable_key_rotation = true
+}
+
+resource "aws_kms_key_policy" "backup" {
+  key_id = aws_kms_key.backup.id
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "Allow administration of the key",
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : [
+            data.aws_iam_session_context.current.issuer_arn
+          ]
+        },
+        "Action" : [
+          "kms:Create*",
+          "kms:Describe*",
+          "kms:Enable*",
+          "kms:List*",
+          "kms:Put*",
+          "kms:Update*",
+          "kms:Revoke*",
+          "kms:Disable*",
+          "kms:Get*",
+          "kms:Delete*",
+          "kms:ScheduleKeyDeletion",
+          "kms:CancelKeyDeletion"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Sid" : "Allow access through S3 for all principals in the account that are authorized to use S3",
+        "Effect" : "Allow",
+        "Principal" : {
+          "AWS" : [
+            "*"
+          ]
+        },
+        "Action" : [
+          "kms:Encrypt",
+          "kms:Decrypt",
+          "kms:ReEncrypt*",
+          "kms:CreateGrant",
+          "kms:DescribeKey",
+          "kms:GenerateDataKey"
+        ],
+        "Resource" : "*",
+        "Condition" : {
+          "StringEquals" : {
+            "kms:CallerAccount" : data.aws_caller_identity.current.account_id
+          },
+          "StringLike" : {
+            "kms:ViaService" : "s3.*.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
+}
