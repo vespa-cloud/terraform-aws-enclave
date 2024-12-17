@@ -290,11 +290,21 @@ resource "aws_iam_role" "vespa_cloud_tenant_host_service" {
   tags = {
     managedby = "vespa-cloud"
   }
-  managed_policy_arns = [
-    "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore",
-    aws_iam_policy.vespa_cloud_host_policy.arn,
-    aws_iam_policy.vespa_cloud_host_backup_policy.arn,
-  ]
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_core" {
+  role       = aws_iam_role.vespa_cloud_tenant_host_service.id
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
+resource "aws_iam_role_policy_attachment" "host" {
+  role       = aws_iam_role.vespa_cloud_tenant_host_service.id
+  policy_arn = aws_iam_policy.vespa_cloud_host_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "host_backup" {
+  role       = aws_iam_role.vespa_cloud_tenant_host_service.id
+  policy_arn = aws_iam_policy.vespa_cloud_host_backup_policy.arn
 }
 
 resource "aws_iam_role" "vespa_cloud_tenant_host_role" {
