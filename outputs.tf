@@ -1,6 +1,6 @@
 
 locals {
-  template_version = "1.0.8"
+  template_version = "1.0.9"
   zones_by_env = {
     for zone in var.all_zones :
     zone.environment => merge(
