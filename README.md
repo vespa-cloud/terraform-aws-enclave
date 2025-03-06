@@ -38,6 +38,10 @@ module "zone_prod_us_east_1c" {
   providers = {
     aws = aws.us_east_1
   }
+
+  archive_reader_principals = [
+    # The user or role ARN that is allowed to read the archive bucket for this zone
+  ]
 }
 
 module "zone_prod_us_west_2a" {
@@ -47,5 +51,9 @@ module "zone_prod_us_west_2a" {
   providers = {
     aws = aws.us_west_2
   }
+
+  archive_reader_principals = [
+    # The user or role ARN that is allowed to read the archive bucket for this zone
+  ]
 }
 ```

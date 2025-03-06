@@ -4,6 +4,9 @@ terraform {
     aws = {
       source = "hashicorp/aws"
     }
+    random = {
+      source = "hashicorp/random"
+    }
   }
 }
 
@@ -86,6 +89,8 @@ resource "aws_kms_key" "archive" {
 }
 
 data "aws_iam_policy_document" "archive" {
+  #checkov:skip=CKV_AWS_109:Needed to keep backwards compatibility
+  #checkov:skip=CKV_AWS_111:Needed to keep backwards compatibility
   statement {
     sid = "SecureTransportOnly"
 
@@ -97,8 +102,8 @@ data "aws_iam_policy_document" "archive" {
     }
 
     resources = [
-      aws_s3_bucket.archive.arn,
-      "${aws_s3_bucket.archive.arn}/*"
+      "arn:aws:s3:::${aws_s3_bucket.archive.id}",
+      "arn:aws:s3:::${aws_s3_bucket.archive.id}/*",
     ]
 
     actions = ["s3:*"]
@@ -109,4 +114,88 @@ data "aws_iam_policy_document" "archive" {
       values   = ["false"]
     }
   }
+
+  statement {
+    sid    = "Enable IAM User Permissions"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+    }
+    actions = [
+      "s3:*"
+    ]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.archive.id}",
+      "arn:aws:s3:::${aws_s3_bucket.archive.id}/*",
+    ]
+  }
+
+  dynamic "statement" {
+    for_each = length(var.archive_reader_principals) > 0 ? [1] : []
+    content {
+      sid    = "AllowReadOnlyAccess"
+      effect = "Allow"
+      principals {
+        type        = "AWS"
+        identifiers = var.archive_reader_principals
+      }
+      actions = [
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:GetBucketLocation"
+      ]
+      resources = [
+        "arn:aws:s3:::${aws_s3_bucket.archive.id}",
+        "arn:aws:s3:::${aws_s3_bucket.archive.id}/*",
+      ]
+    }
+  }
+}
+
+data "aws_iam_policy_document" "kms_archive" {
+  #checkov:skip=CKV_AWS_109:Needed to keep backwards compatibility
+  #checkov:skip=CKV_AWS_111:Needed to keep backwards compatibility
+  statement {
+    sid    = "Enable IAM User Permissions"
+    effect = "Allow"
+    principals {
+      type        = "AWS"
+      identifiers = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+    }
+    actions = [
+      "kms:*"
+    ]
+    resources = [
+      aws_kms_ket.archive.arn
+    ]
+  }
+
+  statement {
+    sid    = "AllowKMSDecrypt"
+    effect = "Allow"
+
+    actions = [
+      "kms:Decrypt",
+      "kms:DescribeKey",
+      "kms:GenerateDataKey"
+    ]
+
+    resources = [
+      aws_kms_key.archive.arn
+    ]
+
+    dynamic "principals" {
+      for_each = length(var.archive_reader_principals) > 0 ? [1] : []
+      content {
+        type        = "AWS"
+        identifiers = var.archive_reader_principals
+      }
+    }
+  }
+}
+
+resource "aws_kms_key_policy" "archive" {
+  key_id = aws_kms_key.archive.id
+  policy = data.aws_iam_policy_document.kms_archive.json
 }
