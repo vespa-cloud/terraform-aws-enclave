@@ -167,7 +167,7 @@ data "aws_iam_policy_document" "kms_archive" {
       "kms:*"
     ]
     resources = [
-      aws_kms_ket.archive.arn
+      aws_kms_key.archive.arn
     ]
   }
 
