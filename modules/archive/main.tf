@@ -171,23 +171,24 @@ data "aws_iam_policy_document" "kms_archive" {
     ]
   }
 
-  statement {
-    sid    = "AllowKMSDecrypt"
-    effect = "Allow"
 
-    actions = [
-      "kms:Decrypt",
-      "kms:DescribeKey",
-      "kms:GenerateDataKey"
-    ]
+  dynamic "statement" {
+    for_each = length(var.archive_reader_principals) > 0 ? [1] : []
+    content {
+      sid    = "AllowKMSDecrypt"
+      effect = "Allow"
 
-    resources = [
-      aws_kms_key.archive.arn
-    ]
+      actions = [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:GenerateDataKey"
+      ]
 
-    dynamic "principals" {
-      for_each = length(var.archive_reader_principals) > 0 ? [1] : []
-      content {
+      resources = [
+        aws_kms_key.archive.arn
+      ]
+
+      principals {
         type        = "AWS"
         identifiers = var.archive_reader_principals
       }
