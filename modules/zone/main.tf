@@ -10,7 +10,7 @@ terraform {
 locals {
   hosts_cidr_block      = cidrsubnet(var.zone_ipv4_cidr, 1, 1)
   hosts_ipv6_cidr_block = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
-  zone                  = merge(
+  zone = merge(
     var.zone,
     {
       az = coalesce(var.zone_az, var.zone.az)
@@ -23,8 +23,9 @@ data "aws_availability_zone" "current" {
 }
 
 module "archive" {
-  source = "../archive"
-  zone   = local.zone
+  source                    = "../archive"
+  zone                      = local.zone
+  archive_reader_principals = var.archive_reader_principals
 }
 
 resource "aws_vpc" "main" {
