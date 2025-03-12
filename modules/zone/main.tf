@@ -546,7 +546,7 @@ resource "aws_kms_key_policy" "backup" {
         "Effect" : "Allow",
         "Principal" : {
           "AWS" : [
-            data.aws_iam_session_context.current.issuer_arn
+            "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
           ]
         },
         "Action" : [
