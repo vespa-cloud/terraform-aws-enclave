@@ -36,7 +36,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "arn:aws:ec2:*:*:instance/*",
       "arn:aws:ec2:*:*:network-interface/*",
       "arn:aws:ec2:*:*:security-group/*",
-      "arn:aws:ec2::*:snapshot/*",
+      "arn:aws:ec2:*::snapshot/*",
       "arn:aws:ec2:*:*:subnet/*",
       "arn:aws:ec2:*:*:volume/*",
       "arn:aws:iam::*:role/*"
