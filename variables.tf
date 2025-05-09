@@ -24,6 +24,7 @@ variable "all_zones" {
   }))
   default = [
     { environment = "dev", region = "aws-us-east-1c", tag = "dev.aws-use-1c" },
+    { environment = "dev", region = "aws-euw1-az1", tag = "dev.aws-euw1-az1" },
     { environment = "test", region = "aws-us-east-1c", tag = "test.aws-use-1c" },
     { environment = "staging", region = "aws-us-east-1c", tag = "staging.aws-use-1c" },
     { environment = "perf", region = "aws-us-east-1c", tag = "perf.aws-use-1c" },
@@ -40,6 +41,7 @@ variable "az_by_region" {
     aws-us-east-1c      = "use1-az6",
     aws-us-west-2a      = "usw2-az1",
     aws-eu-west-1a      = "euw1-az2",
+    aws-euw1-az1        = "euw1-az1",
     aws-ap-northeast-1a = "apne1-az4",
   }
 }
