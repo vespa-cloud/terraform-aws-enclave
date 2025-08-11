@@ -52,7 +52,6 @@ data "aws_iam_policy_document" "provision_policy" {
 
   statement {
     actions = [
-      "kms:CreateGrant",
       "kms:GenerateDataKeyWithoutPlaintext",
       "kms:ReEncryptFrom",
       "kms:ReEncryptTo",
