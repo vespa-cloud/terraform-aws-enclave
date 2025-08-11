@@ -157,14 +157,15 @@ data "aws_iam_policy_document" "kms_archive" {
   #checkov:skip=CKV_AWS_109:Needed to keep backwards compatibility
   #checkov:skip=CKV_AWS_111:Needed to keep backwards compatibility
   statement {
-    sid    = "Enable IAM User Permissions"
+    sid    = "Enable IAM User Permissions for get and put policy"
     effect = "Allow"
     principals {
       type        = "AWS"
       identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
     actions = [
-      "kms:*"
+      "kms:GetKeyPolicy",
+      "kms:PutKeyPolicy",
     ]
     resources = [
       aws_kms_key.archive.arn
