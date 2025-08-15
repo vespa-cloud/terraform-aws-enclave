@@ -22,6 +22,6 @@ module "secrets" {
   ]
 
   # Optional
-  # kms_key_ars = [ "arn:aws:kms:<region>:<account-id>:key/<key-id>" ]
+  # kms_key_arns = [ "arn:aws:kms:<region>:<account-id>:key/<key-id>" ]
 }
 ```
