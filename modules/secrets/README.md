@@ -18,7 +18,7 @@ module "secrets" {
 
   # Define secret ARNs that should be made available to Vespa hosts
   secret_arns = [
-      "arn:aws:secretsmanager:us-east-1:123456789012:secret:MyExampleSecret-AbCdEf"
+       "arn:aws:secretsmanager:<region>:<account-id>:secret:<secret-name>"
   ]
 
   # Optional

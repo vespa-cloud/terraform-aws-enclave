@@ -1,12 +1,4 @@
 
-terraform {
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-    }
-  }
-}
-
 locals {
   reader_role = "vespa.tenant.${var.tenant_name}.aws-${var.account}.tenant-host-service"
 }
