@@ -405,7 +405,8 @@ data "aws_iam_policy_document" "ebs_key" {
     effect = "Allow"
 
     actions = [
-      "kms:*"
+      "kms:GetKeyPolicy",
+      "kms:PutKeyPolicy",
     ]
 
     principals {
