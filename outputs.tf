@@ -26,3 +26,8 @@ output "vespa_cloud_account" {
   description = "The Vespa Cloud AWS account used to manage enclave accounts"
   value       = var.vespa_cloud_account
 }
+
+output "vespa_host_role" {
+  description = "The AWS role assigned to Vespa Cloud hosts"
+  value       = "vespa.tenant.${var.tenant_name}.aws-${data.aws_caller_identity.current.account_id}.tenant-host-service"
+}
