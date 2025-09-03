@@ -365,7 +365,7 @@ resource "aws_vpc_endpoint" "interface" {
   security_group_ids  = [aws_security_group.sg.id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  service_name        = "com.amazonaws.${data.aws_region.current.name}.${each.key}"
+  service_name        = "com.amazonaws.${data.aws_region.current.id}.${each.key}"
   tags = {
     Name      = "vespa-${replace(each.key, ".", "-")}-${local.zone.name}"
     managedby = "vespa-cloud"
@@ -381,7 +381,7 @@ resource "aws_vpc_endpoint" "ecr_s3" {
   vpc_id            = aws_vpc.main.id
   route_table_ids   = [aws_route_table.hosts.id]
   vpc_endpoint_type = "Gateway"
-  service_name      = "com.amazonaws.${data.aws_region.current.name}.s3"
+  service_name      = "com.amazonaws.${data.aws_region.current.id}.s3"
   tags = {
     Name      = "vespa-s3gw-${local.zone.name}"
     managedby = "vespa-cloud"
