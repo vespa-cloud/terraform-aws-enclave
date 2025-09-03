@@ -26,10 +26,14 @@ resource "aws_iam_role" "vespa_ssh_login_role" {
       }
     ]
   })
-  managed_policy_arns = [aws_iam_policy.vespa_ssh_login_policy.arn]
   tags = {
     managedby = "vespa-cloud"
   }
+}
+
+resource "aws_iam_role_policy_attachment" "ssh_login" {
+  role       = aws_iam_role.vespa_ssh_login_role.name
+  policy_arn = aws_iam_policy.vespa_ssh_login_policy.arn
 }
 
 resource "aws_iam_policy" "vespa_ssh_login_policy" {

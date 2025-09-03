@@ -135,13 +135,19 @@ resource "aws_iam_role" "vespa_cloud_provisioner_role" {
       }
     ]
   })
-  managed_policy_arns = [
-    aws_iam_policy.vespa_cloud_provision_policy.arn,
-    aws_iam_policy.vespa_cloud_backup_expiry_policy.arn,
-  ]
   tags = {
     managedby = "vespa-cloud"
   }
+}
+
+resource "aws_iam_role_policy_attachment" "provision" {
+  role       = aws_iam_role.vespa_cloud_provisioner_role.name
+  policy_arn = aws_iam_policy.vespa_cloud_provision_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "backup" {
+  role       = aws_iam_role.vespa_cloud_provisioner_role.name
+  policy_arn = aws_iam_policy.vespa_cloud_backup_expiry_policy.arn
 }
 
 resource "aws_iam_policy" "vespa_cloud_provision_policy" {

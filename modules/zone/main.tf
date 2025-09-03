@@ -508,6 +508,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "backup" {
   rule {
     id     = "remove-incomplete"
     status = "Enabled"
+    filter {}
     abort_incomplete_multipart_upload {
       days_after_initiation = 2
     }
