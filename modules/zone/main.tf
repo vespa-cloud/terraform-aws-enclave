@@ -536,6 +536,11 @@ resource "aws_kms_key" "backup" {
   enable_key_rotation = true
 }
 
+resource "aws_kms_alias" "backup" {
+  name          = "alias/vespa-backup-key-${local.zone.environment}-${local.zone.region}"
+  target_key_id = aws_kms_key.backup.key_id
+}
+
 resource "aws_kms_key_policy" "backup" {
   key_id = aws_kms_key.backup.id
   policy = jsonencode({

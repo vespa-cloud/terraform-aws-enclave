@@ -88,6 +88,11 @@ resource "aws_kms_key" "archive" {
   }
 }
 
+resource "aws_kms_alias" "archive" {
+  name          = "alias/vespa-archive-key-${var.zone.environment}-${var.zone.region}"
+  target_key_id = aws_kms_key.archive.key_id
+}
+
 data "aws_iam_policy_document" "archive" {
   #checkov:skip=CKV_AWS_109:Needed to keep backwards compatibility
   #checkov:skip=CKV_AWS_111:Needed to keep backwards compatibility
