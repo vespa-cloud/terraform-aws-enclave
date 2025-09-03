@@ -56,39 +56,25 @@ data "aws_iam_policy_document" "provision_policy" {
       "kms:GenerateDataKeyWithoutPlaintext",
       "kms:ReEncryptFrom",
       "kms:ReEncryptTo",
-      "route53:ChangeResourceRecordSets",
-      "route53:GetChange"
+      "kms:ListAliases",
+      "kms:ListKeys",
     ]
     resources = [
       "arn:aws:kms:*:*:key/*",
-      "arn:aws:route53:::change/*",
-      "arn:aws:route53:::hostedzone/*"
     ]
     effect = "Allow"
   }
 
   statement {
-    actions = ["route53:GetChange", "route53:ChangeResourceRecordSets"]
-    resources = [
-      "arn:aws:ec2:*:*:image/*",
-      "arn:aws:ec2:*:*:instance/*",
-      "arn:aws:ec2:*:*:security-group/*",
-      "arn:aws:ec2:*:*:network-interface/*",
-      "arn:aws:ec2:*:*:subnet/*",
-      "arn:aws:ec2:*:*:volume/*"
+    actions = [
+      "elasticloadbalancing:*"
     ]
-    effect = "Allow"
-  }
-
-  statement {
-    actions   = ["elasticloadbalancing:*"]
     resources = ["*"]
     effect    = "Allow"
   }
 
   statement {
     actions = [
-      "cognito-idp:DescribeUserPoolClient",
       "ec2:AssignPrivateIpAddresses",
       "ec2:CreateTags",
       "ec2:CreateVpcEndpointServiceConfiguration",
@@ -117,10 +103,6 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:ModifyVpcEndpointServicePermissions",
       "ec2:StartInstances",
       "ec2:StartVpcEndpointServicePrivateDnsVerification",
-      "kms:ListAliases",
-      "kms:ListKeys",
-      "route53:ListHostedZones",
-      "sts:AssumeRole",
     ]
     resources = ["*"]
     effect    = "Allow"
