@@ -44,10 +44,27 @@ data "aws_iam_policy_document" "provision_policy" {
     effect = "Allow"
   }
 
+
+  statement {
+    actions   = ["iam:PassRole"]
+    resources = ["*"]
+    effect    = "Deny"
+
+    condition {
+      test     = "StringNotEquals"
+      variable = "iam:RoleName"
+      values   = [aws_iam_role.vespa_cloud_tenant_host_service.name]
+    }
+  }
   statement {
     actions   = ["iam:PassRole"]
     resources = [aws_iam_role.vespa_cloud_tenant_host_service.arn]
     effect    = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["ec2.amazonaws.com"]
+    }
   }
 
   statement {
