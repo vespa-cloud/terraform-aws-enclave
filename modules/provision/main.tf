@@ -44,10 +44,27 @@ data "aws_iam_policy_document" "provision_policy" {
     effect = "Allow"
   }
 
+
+  statement {
+    actions   = ["iam:PassRole"]
+    resources = ["*"]
+    effect    = "Deny"
+
+    condition {
+      test     = "StringNotEquals"
+      variable = "iam:RoleName"
+      values   = [aws_iam_role.vespa_cloud_tenant_host_service.name]
+    }
+  }
   statement {
     actions   = ["iam:PassRole"]
     resources = [aws_iam_role.vespa_cloud_tenant_host_service.arn]
     effect    = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PassedToService"
+      values   = ["ec2.amazonaws.com"]
+    }
   }
 
   statement {
@@ -56,39 +73,25 @@ data "aws_iam_policy_document" "provision_policy" {
       "kms:GenerateDataKeyWithoutPlaintext",
       "kms:ReEncryptFrom",
       "kms:ReEncryptTo",
-      "route53:ChangeResourceRecordSets",
-      "route53:GetChange"
+      "kms:ListAliases",
+      "kms:ListKeys",
     ]
     resources = [
       "arn:aws:kms:*:*:key/*",
-      "arn:aws:route53:::change/*",
-      "arn:aws:route53:::hostedzone/*"
     ]
     effect = "Allow"
   }
 
   statement {
-    actions = ["route53:GetChange", "route53:ChangeResourceRecordSets"]
-    resources = [
-      "arn:aws:ec2:*:*:image/*",
-      "arn:aws:ec2:*:*:instance/*",
-      "arn:aws:ec2:*:*:security-group/*",
-      "arn:aws:ec2:*:*:network-interface/*",
-      "arn:aws:ec2:*:*:subnet/*",
-      "arn:aws:ec2:*:*:volume/*"
+    actions = [
+      "elasticloadbalancing:*"
     ]
-    effect = "Allow"
-  }
-
-  statement {
-    actions   = ["elasticloadbalancing:*"]
     resources = ["*"]
     effect    = "Allow"
   }
 
   statement {
     actions = [
-      "cognito-idp:DescribeUserPoolClient",
       "ec2:AssignPrivateIpAddresses",
       "ec2:CreateTags",
       "ec2:CreateVpcEndpointServiceConfiguration",
@@ -117,10 +120,6 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:ModifyVpcEndpointServicePermissions",
       "ec2:StartInstances",
       "ec2:StartVpcEndpointServicePrivateDnsVerification",
-      "kms:ListAliases",
-      "kms:ListKeys",
-      "route53:ListHostedZones",
-      "sts:AssumeRole",
     ]
     resources = ["*"]
     effect    = "Allow"
@@ -153,13 +152,19 @@ resource "aws_iam_role" "vespa_cloud_provisioner_role" {
       }
     ]
   })
-  managed_policy_arns = [
-    aws_iam_policy.vespa_cloud_provision_policy.arn,
-    aws_iam_policy.vespa_cloud_backup_expiry_policy.arn,
-  ]
   tags = {
     managedby = "vespa-cloud"
   }
+}
+
+resource "aws_iam_role_policy_attachment" "provision" {
+  role       = aws_iam_role.vespa_cloud_provisioner_role.name
+  policy_arn = aws_iam_policy.vespa_cloud_provision_policy.arn
+}
+
+resource "aws_iam_role_policy_attachment" "backup" {
+  role       = aws_iam_role.vespa_cloud_provisioner_role.name
+  policy_arn = aws_iam_policy.vespa_cloud_backup_expiry_policy.arn
 }
 
 resource "aws_iam_policy" "vespa_cloud_provision_policy" {

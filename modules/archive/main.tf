@@ -48,6 +48,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "archive" {
     expiration {
       days = 31
     }
+    filter {}
     abort_incomplete_multipart_upload {
       days_after_initiation = 7
     }
@@ -86,6 +87,11 @@ resource "aws_kms_key" "archive" {
   tags = {
     managedby = "vespa-cloud"
   }
+}
+
+resource "aws_kms_alias" "archive" {
+  name          = "alias/vespa-archive-key-${var.zone.environment}-${var.zone.region}"
+  target_key_id = aws_kms_key.archive.key_id
 }
 
 data "aws_iam_policy_document" "archive" {
