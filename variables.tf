@@ -43,13 +43,13 @@ variable "az_by_region" {
   description = "Mapping between Availability Zone and Availability Zone ID for the Vespa Cloud AWS zones"
   default = {
     aws-us-east-1c      = "use1-az6",
-    aws-us-east-1b      = "use1-az4",
-    aws-us-east-2a      = "use2-az1",
-    aws-us-east-2c      = "use2-az3",
     aws-us-west-2a      = "usw2-az1",
     aws-eu-central-1a   = "euc1-az2",
     aws-eu-west-1a      = "euw1-az2",
     aws-euw1-az1        = "euw1-az1",
+    aws-use2-az3        = "use2-az3"
+    aws-use2-az1        = "use2-az1"
+    aws-use1-az4        = "use1-az4"
     aws-ap-northeast-1a = "apne1-az4",
   }
 }
