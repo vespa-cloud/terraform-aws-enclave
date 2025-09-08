@@ -69,8 +69,8 @@ data "aws_iam_policy_document" "provision_policy" {
     ]
     effect = "Allow"
     condition {
-      test     = "StringLike"
-      variable = "kms:RequestAlias"
+      test     = "ForAnyValue:StringLike"
+      variable = "kms:ResourceAliases"
       values   = ["alias/vespa-*"]
     }
   }
