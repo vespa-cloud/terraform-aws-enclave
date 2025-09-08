@@ -65,7 +65,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "kms:ListKeys",
     ]
     resources = [
-      "arn:aws:kms:*:${data.aws_caller_identity.current.account_id}:key/*",
+      "arn:aws:kms:*:*:key/*",
     ]
     effect = "Allow"
     condition {
