@@ -65,9 +65,14 @@ data "aws_iam_policy_document" "provision_policy" {
       "kms:ListKeys",
     ]
     resources = [
-      "arn:aws:kms:*:*:key/*",
+      "arn:aws:kms:*:${data.aws_caller_identity.current.account_id}:key/*",
     ]
     effect = "Allow"
+    condition {
+      test     = "StringLike"
+      variable = "kms:RequestAlias"
+      values   = ["alias/vespa-*"]
+    }
   }
 
   statement {
