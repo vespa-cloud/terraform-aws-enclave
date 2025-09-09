@@ -57,15 +57,16 @@ data "aws_iam_policy_document" "provision_policy" {
 
   statement {
     actions = [
-      "kms:CreateGrant",
+      "kms:DescribeKey",
+      "kms:Encrypt",
+      "kms:Decrypt",
       "kms:GenerateDataKeyWithoutPlaintext",
       "kms:ReEncryptFrom",
       "kms:ReEncryptTo",
-      "kms:ListAliases",
-      "kms:ListKeys",
+      "kms:CreateGrant",
     ]
     resources = [
-      "arn:aws:kms:*:*:key/*",
+      "arn:aws:kms:*:${data.aws_caller_identity.current.account_id}:key/*",
     ]
     effect = "Allow"
     condition {
@@ -73,6 +74,22 @@ data "aws_iam_policy_document" "provision_policy" {
       variable = "kms:ResourceAliases"
       values   = ["alias/vespa-*"]
     }
+  }
+
+  // AMI key
+  statement {
+    actions = [
+      "kms:DescribeKey",
+      "kms:ReEncryptFrom",
+      "kms:ReEncryptTo",
+      "kms:Decrypt",
+      "kms:GenerateDataKeyWithoutPlainText",
+      "kms:CreateGrant"
+    ]
+    resources = [
+      "arn:aws:kms:*:${var.vespa_cloud_account}:key/*",
+    ]
+    effect = "Allow"
   }
 
   statement {
