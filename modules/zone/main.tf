@@ -405,7 +405,19 @@ data "aws_iam_policy_document" "ebs_key" {
     effect = "Allow"
 
     actions = [
-      "kms:*"
+      "kms:Decrypt",
+      "kms:DescribeKey",
+      "kms:Encrypt",
+      "kms:GenerateDataKey*",
+      "kms:GetKeyPolicy",
+      "kms:ListKeyPolicies",
+      "kms:PutKeyPolicy",
+      "kms:ReEncryptFrom",
+      "kms:ReEncryptTo",
+      "kms:ScheduleKeyDeletion",
+      "kms:CancelKeyDeletion",
+      "kms:TagResource",
+      "kms:UntagResource",
     ]
 
     principals {
