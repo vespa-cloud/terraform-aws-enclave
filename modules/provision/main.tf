@@ -127,6 +127,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:CreateTags",
       "ec2:CreateVpcEndpointServiceConfiguration",
       "ec2:DeleteVpcEndpointServiceConfigurations",
+      "ec2:RejectVpcEndpointConnections",
       "ec2:DescribeAccountAttributes",
       "ec2:DescribeAddresses",
       "ec2:DescribeClassicLinkInstances",
