@@ -1,16 +1,30 @@
 
 #
-# Sett up the AWS Terraform Provider to point to the region where
-# your want to provision the Vespa Cloud Enclave.
+# Set up the AWS Terraform Provider to point to the region where
+# you want to provision the Vespa Cloud Enclave.
 #
 provider "aws" {
   region = "us-east-1"
   alias  = "us_east_1"
+
+  default_tags {
+    tags = {
+      Environment = "production"
+      Service     = "Vespa"
+    }
+  }
 }
 
 provider "aws" {
   region = "us-west-2"
   alias  = "us_west_2"
+
+  default_tags {
+    tags = {
+      Environment = "production"
+      Service     = "Vespa"
+    }
+  }
 }
 
 #
