@@ -36,6 +36,13 @@ variable "all_zones" {
     { environment = "prod", region = "aws-eu-central-1a", tag = "prod.aws-eu-central-1a" },
     { environment = "prod", region = "aws-eu-west-1a", tag = "prod.aws-euw-1a" },
     { environment = "prod", region = "aws-ap-northeast-1a", tag = "prod.aws-apne-1a" },
+    { environment = "prod", region = "aws-euw1-az1", tag = "prod.aws-euw1-az1" },
+    { environment = "prod", region = "aws-euc1-az1", tag = "prod.aws-euc1-az1" },
+    { environment = "prod", region = "aws-euc1-az3", tag = "prod.aws-euc1-az3" },
+    { environment = "prod", region = "aws-apne1-az1", tag = "prod.aws-apne1-az1" },
+    { environment = "prod", region = "aws-usw2-az3", tag = "prod.aws-usw2-az3" },
+    { environment = "prod", region = "aws-cac1-az1", tag = "prod.aws-cac1-az1" },
+    { environment = "prod", region = "aws-cac1-az2", tag = "prod.aws-cac1-az2" },
   ]
 }
 
@@ -47,9 +54,16 @@ variable "az_by_region" {
     aws-eu-central-1a   = "euc1-az2",
     aws-eu-west-1a      = "euw1-az2",
     aws-euw1-az1        = "euw1-az1",
-    aws-use2-az3        = "use2-az3"
-    aws-use2-az1        = "use2-az1"
-    aws-use1-az4        = "use1-az4"
+    aws-use2-az3        = "use2-az3",
+    aws-use2-az1        = "use2-az1",
+    aws-use1-az4        = "use1-az4",
     aws-ap-northeast-1a = "apne1-az4",
+    aws-euw1-az1        = "euw1-az1",
+    aws-euc1-az1        = "euc1-az1",
+    aws-euc1-az3        = "euc1-az3",
+    aws-apne1-az1       = "apne1-az1",
+    aws-usw2-az3        = "usw2-az3",
+    aws-cac1-az1        = "cac1-az1",
+    aws-cac1-az2        = "cac1-az2",
   }
 }
