@@ -27,7 +27,6 @@ variable "all_zones" {
     { environment = "dev", region = "aws-euw1-az1", tag = "dev.aws-euw1-az1" },
     { environment = "test", region = "aws-us-east-1c", tag = "test.aws-use-1c" },
     { environment = "staging", region = "aws-us-east-1c", tag = "staging.aws-use-1c" },
-    { environment = "perf", region = "aws-us-east-1c", tag = "perf.aws-use-1c" },
     { environment = "prod", region = "aws-us-east-1c", tag = "prod.aws-use-1c" },
     { environment = "prod", region = "aws-use1-az4", tag = "prod.aws-use1-az4" },
     { environment = "prod", region = "aws-use2-az1", tag = "prod.aws-use2-az1" },
