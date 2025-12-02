@@ -64,15 +64,6 @@ module "zone_dev_us_east_1c" {
   }
 }
 
-module "zone_perf_us_east_1c" {
-  source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
-  zone    = module.enclave.zones.perf.aws_us_east_1c
-  providers = {
-    aws = aws.us_east_1
-  }
-}
-
 #
 # Then, we set up the two zones that are used for the CI/CD deployment
 # pipline that Vespa Cloud supports.
