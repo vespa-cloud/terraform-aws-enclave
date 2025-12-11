@@ -405,6 +405,7 @@ data "aws_iam_policy_document" "ebs_key" {
     effect = "Allow"
 
     actions = [
+      "kms:CancelKeyDeletion",
       "kms:Decrypt",
       "kms:DescribeKey",
       "kms:Encrypt",
@@ -415,7 +416,6 @@ data "aws_iam_policy_document" "ebs_key" {
       "kms:ReEncryptFrom",
       "kms:ReEncryptTo",
       "kms:ScheduleKeyDeletion",
-      "kms:CancelKeyDeletion",
       "kms:TagResource",
       "kms:UntagResource",
     ]
@@ -568,20 +568,20 @@ resource "aws_kms_key_policy" "backup" {
           ]
         },
         "Action" : [
+          "kms:CancelKeyDeletion",
           "kms:Create*",
+          "kms:Delete*",
           "kms:Describe*",
+          "kms:Disable*",
           "kms:Enable*",
+          "kms:Get*",
           "kms:List*",
           "kms:Put*",
-          "kms:Update*",
           "kms:Revoke*",
-          "kms:Disable*",
-          "kms:Get*",
-          "kms:Delete*",
           "kms:ScheduleKeyDeletion",
-          "kms:CancelKeyDeletion",
           "kms:TagResource",
           "kms:UntagResource",
+          "kms:Update*",
         ],
         "Resource" : "*"
       },
