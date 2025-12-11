@@ -41,6 +41,9 @@ variable "all_zones" {
     { environment = "prod", region = "aws-usw2-az3", tag = "prod.aws-usw2-az3" },
     { environment = "prod", region = "aws-cac1-az1", tag = "prod.aws-cac1-az1" },
     { environment = "prod", region = "aws-cac1-az2", tag = "prod.aws-cac1-az2" },
+
+    # deprecated in favor of dev zone - remove when bumping module to 2.x
+    { environment = "perf", region = "aws-us-east-1c", tag = "perf.aws-use-1c" },
   ]
 }
 
