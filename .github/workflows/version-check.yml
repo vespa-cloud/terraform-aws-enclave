@@ -1,0 +1,133 @@
+name: PR Template version bump check
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  check-template-version-bumped:
+    name: Ensure locals.template_version is bumped vs main and latest tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Compute minor/no-tag flag
+        id: pr_intent
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          HAS_NO_TAG: ${{ contains(github.event.pull_request.labels.*.name, 'no-tag') }}
+        run: |
+          TITLE_LC=$(echo "${PR_TITLE:-}" | tr '[:upper:]' '[:lower:]')
+          if [ "${HAS_NO_TAG}" = "true" ] || [[ "$TITLE_LC" == minor* ]] || [[ "$TITLE_LC" == "[minor"* ]]; then
+            echo "minor_or_notag=true" >> "$GITHUB_OUTPUT"
+            echo "Computed minor/no-tag = true (title='$PR_TITLE', has_no_tag=$HAS_NO_TAG)"
+          else
+            echo "minor_or_notag=false" >> "$GITHUB_OUTPUT"
+            echo "Computed minor/no-tag = false (title='$PR_TITLE', has_no_tag=$HAS_NO_TAG)"
+          fi
+
+      - name: Extract template_version from PR (main.tf)
+        id: pr_version
+        run: |
+          FILE=main.tf
+          if [ ! -f "$FILE" ]; then
+            echo "❌ main.tf not found" >&2
+            exit 1
+          fi
+          TEMPLATE_VERSION=$(sed -nE 's/^[[:space:]]*template_version[[:space:]]*=[[:space:]]*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' "$FILE" | head -n1)
+          if [ -z "$TEMPLATE_VERSION" ]; then
+            echo "❌ Failed to parse template_version from PR main.tf" >&2
+            exit 1
+          fi
+          echo "value=$TEMPLATE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "PR template_version: $TEMPLATE_VERSION"
+
+      - name: Fetch main branch
+        run: |
+          git fetch origin main --depth=1
+
+      - name: Extract template_version from origin/main
+        id: main_version
+        run: |
+          if ! git show origin/main:main.tf > /tmp/main.tf 2>/dev/null; then
+            echo "❌ origin/main:main.tf not found. The main branch must contain main.tf with template_version." >&2
+            exit 1
+          fi
+          MAIN_VERSION=$(sed -nE 's/^[[:space:]]*template_version[[:space:]]*=[[:space:]]*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' /tmp/main.tf | head -n1)
+          if [ -z "$MAIN_VERSION" ]; then
+            echo "❌ Failed to parse template_version from origin/main:main.tf" >&2
+            exit 1
+          fi
+          echo "Main branch template_version: ${MAIN_VERSION}"
+          echo "value=$MAIN_VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Determine latest v* tag (semver)
+        id: latest_tag
+        run: |
+          LATEST_TAG=$(git tag --list | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sed 's/^v//' | sort -V | tail -n1 || true)
+          echo "Latest tag (no v): ${LATEST_TAG:-none}"
+          echo "value=$LATEST_TAG" >> "$GITHUB_OUTPUT"
+
+      # Enforce NOT bumped for minor/no-tag PRs
+      - name: Enforce NOT bumped (minor/no-tag PRs)
+        if: steps.pr_intent.outputs.minor_or_notag == 'true'
+        run: |
+          PR_VER='${{ steps.pr_version.outputs.value }}'
+          MAIN_VER='${{ steps.main_version.outputs.value }}'
+          echo "Ensuring PR does NOT bump version: PR=$PR_VER, main=$MAIN_VER"
+          if [ "$PR_VER" != "$MAIN_VER" ]; then
+            echo "❌ locals.template_version changed in a minor/no-tag PR (PR=$PR_VER vs main=$MAIN_VER)." >&2
+            exit 1
+          fi
+          echo "✅ Version unchanged as expected for minor/no-tag PRs."
+
+      # Enforce bumped for regular PRs
+      - name: Enforce bump vs origin/main (regular PRs)
+        if: steps.pr_intent.outputs.minor_or_notag != 'true'
+        run: |
+          PR_VER='${{ steps.pr_version.outputs.value }}'
+          MAIN_VER='${{ steps.main_version.outputs.value }}'
+          echo "Comparing PR ($PR_VER) vs main ($MAIN_VER)"
+
+          if [ "$PR_VER" = "$MAIN_VER" ]; then
+            echo "❌ locals.template_version ($PR_VER) has not been bumped relative to main ($MAIN_VER)." >&2
+            exit 1
+          fi
+
+          HIGHEST=$(printf '%s\n%s\n' "$MAIN_VER" "$PR_VER" | sort -V | tail -n1)
+          if [ "$HIGHEST" != "$PR_VER" ]; then
+            echo "❌ locals.template_version ($PR_VER) is lower than main's version ($MAIN_VER)." >&2
+            exit 1
+          fi
+
+          echo "OK: PR version is greater than main."
+
+      - name: Enforce bump vs latest tag (regular PRs)
+        if: steps.pr_intent.outputs.minor_or_notag != 'true'
+        run: |
+          PR_VER='${{ steps.pr_version.outputs.value }}'
+          LATEST_TAG='${{ steps.latest_tag.outputs.value }}'
+          echo "Comparing PR ($PR_VER) vs latest tag (${LATEST_TAG:-none})"
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No tags found; skipping tag comparison."
+            exit 0
+          fi
+
+          if [ "$PR_VER" = "$LATEST_TAG" ]; then
+            echo "❌ locals.template_version ($PR_VER) has not been bumped relative to the latest tag ($LATEST_TAG)." >&2
+            exit 1
+          fi
+
+          HIGHEST=$(printf '%s\n%s\n' "$LATEST_TAG" "$PR_VER" | sort -V | tail -n1)
+          if [ "$HIGHEST" != "$PR_VER" ]; then
+            echo "❌ locals.template_version ($PR_VER) is lower than the latest tag ($LATEST_TAG)." >&2
+            exit 1
+          fi
+
+          echo "✅ PR version is greater than the latest tag."
