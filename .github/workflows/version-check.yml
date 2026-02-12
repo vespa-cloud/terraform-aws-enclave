@@ -2,6 +2,7 @@ name: PR Template version bump check
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
     branches:
       - main
 
