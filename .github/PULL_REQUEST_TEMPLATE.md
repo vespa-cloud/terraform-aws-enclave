@@ -13,6 +13,6 @@ See more details in .github/CONTRIBUTING.md.
 ### Intent (select one)
 
 - [ ] Regular - bumped version `locals.template_version` in `main.tf`
-- [ ] Minor/internal - no version bump (renaming/refactoring, comments, .github, minor docs)
+- [ ] Minor/internal - no version bump (also add `no-tag` label or `minor` title prefix)
 
 First time contributor? Please check the policy in [CONTRIBUTING.md](https://github.com/vespa-cloud/terraform-aws-enclave/blob/main/.github/CONTRIBUTING.md).
