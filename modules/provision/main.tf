@@ -134,6 +134,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:DescribeCoipPools",
       "ec2:DescribeImages",
       "ec2:DescribeInstanceStatus",
+      "ec2:DescribeInstanceTypeOfferings",
       "ec2:DescribeInstances",
       "ec2:DescribeInternetGateways",
       "ec2:DescribeNetworkInterfaces",
