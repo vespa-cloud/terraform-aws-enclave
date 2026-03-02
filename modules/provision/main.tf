@@ -57,13 +57,13 @@ data "aws_iam_policy_document" "provision_policy" {
 
   statement {
     actions = [
+      "kms:CreateGrant",
+      "kms:Decrypt",
       "kms:DescribeKey",
       "kms:Encrypt",
-      "kms:Decrypt",
       "kms:GenerateDataKeyWithoutPlaintext",
       "kms:ReEncryptFrom",
       "kms:ReEncryptTo",
-      "kms:CreateGrant",
     ]
     resources = [
       "arn:aws:kms:*:${data.aws_caller_identity.current.account_id}:key/*",
@@ -79,12 +79,12 @@ data "aws_iam_policy_document" "provision_policy" {
   // AMI key
   statement {
     actions = [
-      "kms:DescribeKey",
-      "kms:ReEncryptFrom",
-      "kms:ReEncryptTo",
+      "kms:CreateGrant",
       "kms:Decrypt",
+      "kms:DescribeKey",
       "kms:GenerateDataKeyWithoutPlainText",
-      "kms:CreateGrant"
+      "kms:ReEncryptFrom",
+      "kms:ReEncryptTo"
     ]
     resources = [
       "arn:aws:kms:*:${var.vespa_cloud_account}:key/*",
@@ -127,14 +127,14 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:CreateTags",
       "ec2:CreateVpcEndpointServiceConfiguration",
       "ec2:DeleteVpcEndpointServiceConfigurations",
-      "ec2:RejectVpcEndpointConnections",
       "ec2:DescribeAccountAttributes",
       "ec2:DescribeAddresses",
       "ec2:DescribeClassicLinkInstances",
       "ec2:DescribeCoipPools",
       "ec2:DescribeImages",
-      "ec2:DescribeInstanceStatus",
       "ec2:DescribeInstances",
+      "ec2:DescribeInstanceStatus",
+      "ec2:DescribeInstanceTypeOfferings",
       "ec2:DescribeInternetGateways",
       "ec2:DescribeNetworkInterfaces",
       "ec2:DescribeRouteTables",
@@ -150,6 +150,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:GetCoipPoolUsage",
       "ec2:ModifyVpcEndpointServiceConfiguration",
       "ec2:ModifyVpcEndpointServicePermissions",
+      "ec2:RejectVpcEndpointConnections",
       "ec2:StartInstances",
       "ec2:StartVpcEndpointServicePrivateDnsVerification",
     ]
@@ -260,8 +261,8 @@ resource "aws_iam_policy" "vespa_cloud_host_backup_policy" {
         Sid    = "TenantHostAccess",
         Effect = "Allow",
         Action = [
-          "s3:PutObject",
-          "s3:GetObject"
+          "s3:GetObject",
+          "s3:PutObject"
         ],
         # Snapshot content is stored under /snapshots/<hostname>/<uuid>/
         Resource = "arn:aws:s3:::${local.bucket_resource_name}/snapshots/*/*/*"
