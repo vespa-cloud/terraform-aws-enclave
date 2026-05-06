@@ -40,6 +40,10 @@ IAM role, SSO). See https://registry.terraform.io/providers/hashicorp/aws/latest
 Since Vespa Cloud spans multiple AWS regions, you need one AWS provider per region. The root module
 sets up global IAM resources, and each zone submodule creates region-specific networking.
 
+Production deployments in Vespa Cloud go through a CI/CD pipeline that requires `test` and
+`staging` zones in addition to your `prod` zones. A `dev` zone is also typically set up for
+manual development deployments. The example below sets up all four environments.
+
 ```hcl
 provider "aws" {
   alias  = "us_east_1"
@@ -56,9 +60,42 @@ module "enclave" {
   source      = "vespa-cloud/enclave/aws"
   version     = ">= 1.0.0, < 2.0.0"
   tenant_name = "<YOUR-VESPA-TENANT-NAME>"
+  providers = {
+    aws = aws.us_east_1
+  }
 }
 
-# Create one Vespa Cloud zone (VPC, subnets, NAT gateway, security groups, etc.)
+# Dev zone for manual development deployments
+module "zone_dev_us_east_1c" {
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = ">= 1.0.0, < 2.0.0"
+  zone    = module.enclave.zones.dev.aws_us_east_1c
+  providers = {
+    aws = aws.us_east_1
+  }
+}
+
+# Test and staging zones are required by the Vespa Cloud CI/CD pipeline
+# before changes can be promoted to prod.
+module "zone_test_us_east_1c" {
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = ">= 1.0.0, < 2.0.0"
+  zone    = module.enclave.zones.test.aws_us_east_1c
+  providers = {
+    aws = aws.us_east_1
+  }
+}
+
+module "zone_staging_us_east_1c" {
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = ">= 1.0.0, < 2.0.0"
+  zone    = module.enclave.zones.staging.aws_us_east_1c
+  providers = {
+    aws = aws.us_east_1
+  }
+}
+
+# Production zones (add as many as you need)
 module "zone_prod_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
   version = ">= 1.0.0, < 2.0.0"
