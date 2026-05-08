@@ -399,10 +399,10 @@ data "aws_iam_session_context" "current" {
 }
 
 data "aws_iam_policy_document" "ebs_key_merged" {
-  source_policy_documents = [
+  source_policy_documents = compact([
     data.aws_iam_policy_document.ebs_key.json,
     var.custom_ebs_kms_key_policy,
-  ]
+  ])
 }
 
 data "aws_iam_policy_document" "ebs_key" {
