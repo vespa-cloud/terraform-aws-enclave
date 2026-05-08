@@ -33,3 +33,9 @@ variable "archive_reader_principals" {
   type        = list(string)
   default     = []
 }
+
+variable "custom_ebs_kms_key_policy" {
+  description = "Any custom ebs kms key policy required. This can be to grant account external roles access to the key for agentless scanning or similar. Pass the json output from a `aws_iam_policy_document` data resource as the value"
+  type        = string
+  default     = null
+}

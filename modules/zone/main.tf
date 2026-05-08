@@ -398,6 +398,13 @@ data "aws_iam_session_context" "current" {
   arn = data.aws_caller_identity.current.arn
 }
 
+data "aws_iam_policy_document" "ebs_key_merged" {
+  source_policy_documents = [
+    data.aws_iam_policy_document.ebs_key.json,
+    var.custom_ebs_kms_key_policy,
+  ]
+}
+
 data "aws_iam_policy_document" "ebs_key" {
   policy_id = "key-default-1"
 
@@ -482,7 +489,7 @@ resource "aws_kms_key" "ebs" {
   description             = "Key used for EBS encryption on Vespa instances"
   key_usage               = "ENCRYPT_DECRYPT"
   enable_key_rotation     = true
-  policy                  = data.aws_iam_policy_document.ebs_key.json
+  policy                  = data.aws_iam_policy_document.ebs_key_merged.json
   deletion_window_in_days = 7
   tags = {
     managedby = "vespa-cloud"
