@@ -10,16 +10,17 @@ terraform {
 locals {
   hosts_cidr_block      = cidrsubnet(var.zone_ipv4_cidr, 1, 1)
   hosts_ipv6_cidr_block = cidrsubnet(aws_vpc.main.ipv6_cidr_block, 8, 1)
+  zone_az_id            = coalesce(var.zone_az, var.zone.az[0])
   zone = merge(
     var.zone,
     {
-      az = coalesce(var.zone_az, var.zone.az)
+      az = [local.zone_az_id]
     }
   )
 }
 
 data "aws_availability_zone" "current" {
-  zone_id = local.zone.az
+  zone_id = local.zone_az_id
 }
 
 module "archive" {
@@ -106,6 +107,7 @@ resource "aws_internet_gateway" "gw" {
 }
 
 resource "aws_eip" "natgw" {
+  count = var.is_multi_az ? 0 : 1
   tags = {
     Name      = "${local.zone.name}-eip-natgw"
     managedby = "vespa-cloud"
@@ -113,7 +115,8 @@ resource "aws_eip" "natgw" {
 }
 
 resource "aws_nat_gateway" "gw" {
-  allocation_id = aws_eip.natgw.id
+  count         = var.is_multi_az ? 0 : 1
+  allocation_id = aws_eip.natgw[0].id
   subnet_id     = aws_subnet.natgw.id
   tags = {
     Name      = "${local.zone.name}-natgw"
@@ -127,6 +130,7 @@ resource "aws_nat_gateway" "gw" {
 # Routing tables
 
 resource "aws_route_table" "hosts" {
+  count  = var.is_multi_az ? 0 : 1
   vpc_id = aws_vpc.main.id
   tags = {
     Name      = "${local.zone.name}-rt"
@@ -135,20 +139,23 @@ resource "aws_route_table" "hosts" {
 }
 
 resource "aws_route" "hosts_ipv4" {
-  route_table_id         = aws_route_table.hosts.id
+  count                  = var.is_multi_az ? 0 : 1
+  route_table_id         = aws_route_table.hosts[0].id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.gw.id
+  nat_gateway_id         = aws_nat_gateway.gw[0].id
 }
 
 resource "aws_route" "hosts_ipv6" {
-  route_table_id              = aws_route_table.hosts.id
+  count                       = var.is_multi_az ? 0 : 1
+  route_table_id              = aws_route_table.hosts[0].id
   destination_ipv6_cidr_block = "::/0"
   gateway_id                  = aws_internet_gateway.gw.id
 }
 
 resource "aws_route_table_association" "hosts" {
+  count          = var.is_multi_az ? 0 : 1
   subnet_id      = aws_subnet.hosts.id
-  route_table_id = aws_route_table.hosts.id
+  route_table_id = aws_route_table.hosts[0].id
 }
 
 resource "aws_route_table" "lb" {
@@ -198,6 +205,7 @@ resource "aws_route" "natgw_ipv4" {
 # Network ACLs
 
 resource "aws_network_acl" "main" {
+  count  = var.is_multi_az ? 0 : 1
   vpc_id = aws_vpc.main.id
   subnet_ids = [
     aws_subnet.hosts.id,
@@ -211,8 +219,9 @@ resource "aws_network_acl" "main" {
 }
 
 resource "aws_network_acl_rule" "in_vpc_ipv4" {
+  count = var.is_multi_az ? 0 : 1
   #checkov:skip=CKV_AWS_352:All ports open inside VPC here, but limited by iptables on the host
-  network_acl_id = aws_network_acl.main.id
+  network_acl_id = aws_network_acl.main[0].id
   rule_number    = 100
   protocol       = "-1"
   rule_action    = "allow"
@@ -222,8 +231,9 @@ resource "aws_network_acl_rule" "in_vpc_ipv4" {
 }
 
 resource "aws_network_acl_rule" "in_vpc_ipv6" {
+  count = var.is_multi_az ? 0 : 1
   #checkov:skip=CKV_AWS_352:All ports open inside VPC here, but limited by iptables on the host
-  network_acl_id  = aws_network_acl.main.id
+  network_acl_id  = aws_network_acl.main[0].id
   rule_number     = 110
   protocol        = "-1"
   rule_action     = "allow"
@@ -233,7 +243,8 @@ resource "aws_network_acl_rule" "in_vpc_ipv6" {
 }
 
 resource "aws_network_acl_rule" "in_any_ipv4" {
-  network_acl_id = aws_network_acl.main.id
+  count          = var.is_multi_az ? 0 : 1
+  network_acl_id = aws_network_acl.main[0].id
   rule_number    = 120
   protocol       = "6"
   rule_action    = "allow"
@@ -243,7 +254,8 @@ resource "aws_network_acl_rule" "in_any_ipv4" {
 }
 
 resource "aws_network_acl_rule" "in_any_ipv6" {
-  network_acl_id  = aws_network_acl.main.id
+  count           = var.is_multi_az ? 0 : 1
+  network_acl_id  = aws_network_acl.main[0].id
   rule_number     = 130
   protocol        = "6"
   rule_action     = "allow"
@@ -253,7 +265,8 @@ resource "aws_network_acl_rule" "in_any_ipv6" {
 }
 
 resource "aws_network_acl_rule" "in_any_udp_ipv6" {
-  network_acl_id  = aws_network_acl.main.id
+  count           = var.is_multi_az ? 0 : 1
+  network_acl_id  = aws_network_acl.main[0].id
   rule_number     = 131
   protocol        = "17"
   rule_action     = "allow"
@@ -263,7 +276,8 @@ resource "aws_network_acl_rule" "in_any_udp_ipv6" {
 }
 
 resource "aws_network_acl_rule" "in_any_https_ipv4" {
-  network_acl_id = aws_network_acl.main.id
+  count          = var.is_multi_az ? 0 : 1
+  network_acl_id = aws_network_acl.main[0].id
   rule_number    = 132
   protocol       = "6"
   rule_action    = "allow"
@@ -273,7 +287,8 @@ resource "aws_network_acl_rule" "in_any_https_ipv4" {
 }
 
 resource "aws_network_acl_rule" "in_any_https_ipv6" {
-  network_acl_id  = aws_network_acl.main.id
+  count           = var.is_multi_az ? 0 : 1
+  network_acl_id  = aws_network_acl.main[0].id
   rule_number     = 134
   protocol        = "6"
   rule_action     = "allow"
@@ -284,8 +299,9 @@ resource "aws_network_acl_rule" "in_any_https_ipv6" {
 
 # Permitted under AWS-4007/4008 baseline - ideally we should also permit ICMPv6 "Too Big", see PCLOUD-7589
 resource "aws_network_acl_rule" "in_any_icmp_fragmentation_needed" {
+  count = var.is_multi_az ? 0 : 1
   #checkov:skip=CKV_AWS_352:All ports open here, but limited by iptables on the host
-  network_acl_id = aws_network_acl.main.id
+  network_acl_id = aws_network_acl.main[0].id
   rule_number    = 140
   protocol       = "1"
   rule_action    = "allow"
@@ -297,7 +313,8 @@ resource "aws_network_acl_rule" "in_any_icmp_fragmentation_needed" {
 }
 
 resource "aws_network_acl_rule" "out_ipv4" {
-  network_acl_id = aws_network_acl.main.id
+  count          = var.is_multi_az ? 0 : 1
+  network_acl_id = aws_network_acl.main[0].id
   rule_number    = 100
   protocol       = "-1"
   rule_action    = "allow"
@@ -308,7 +325,8 @@ resource "aws_network_acl_rule" "out_ipv4" {
 }
 
 resource "aws_network_acl_rule" "out_ipv6" {
-  network_acl_id  = aws_network_acl.main.id
+  count           = var.is_multi_az ? 0 : 1
+  network_acl_id  = aws_network_acl.main[0].id
   rule_number     = 110
   protocol        = "-1"
   rule_action     = "allow"
@@ -339,8 +357,8 @@ resource "aws_security_group_rule" "in_vpc" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  cidr_blocks       = [aws_vpc.main.cidr_block]
-  ipv6_cidr_blocks  = [aws_vpc.main.ipv6_cidr_block]
+  cidr_blocks       = concat([aws_vpc.main.cidr_block], var.extra_ingress_cidr_blocks)
+  ipv6_cidr_blocks  = concat([aws_vpc.main.ipv6_cidr_block], var.extra_ingress_ipv6_cidr_blocks)
 }
 
 resource "aws_security_group_rule" "out_any" {
@@ -378,8 +396,9 @@ resource "aws_vpc_endpoint" "interface" {
 }
 
 resource "aws_vpc_endpoint" "ecr_s3" {
+  count             = var.is_multi_az ? 0 : 1
   vpc_id            = aws_vpc.main.id
-  route_table_ids   = [aws_route_table.hosts.id]
+  route_table_ids   = [aws_route_table.hosts[0].id]
   vpc_endpoint_type = "Gateway"
   service_name      = "com.amazonaws.${data.aws_region.current.id}.s3"
   tags = {
