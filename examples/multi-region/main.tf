@@ -46,6 +46,9 @@ module "enclave" {
 # module "ssh" {
 #   source  = "vespa-cloud/enclave/aws//modules/ssh"
 #   vespa_cloud_account = module.enclave.vespa_cloud_account
+#   providers = {
+#     aws = aws.us_east_1
+#   }
 # }
 
 #
