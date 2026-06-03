@@ -49,6 +49,19 @@ module "enclave" {
 # }
 
 #
+# Grant the Vespa team time-limited, read-only access to encrypted core dumps.
+# Only needed when Vespa Cloud support asks for core dump access.
+#
+# module "coredump_access" {
+#   source  = "vespa-cloud/enclave/aws//modules/coredump-access"
+#   version = ">= 1.8.0, < 2.0.0"
+#   read_access_expires_at = "2026-07-01T00:00:00Z"
+#   providers = {
+#     aws = aws.us_east_1
+#   }
+# }
+
+#
 # Set up the VPC that will contain the Enclaved Vespa appplication.
 #
 
