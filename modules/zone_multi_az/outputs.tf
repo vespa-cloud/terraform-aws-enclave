@@ -17,6 +17,9 @@ output "security_group_id" {
 output "archive_bucket" {
   value = module.regional.archive_bucket
 }
+output "coredump_bucket" {
+  value = module.regional.coredump_bucket
+}
 output "hosts_cidr_block" {
   value = module.zonal.hosts_cidr_blocks[0]
 }

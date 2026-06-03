@@ -20,6 +20,11 @@ module "archive" {
   archive_reader_principals = var.archive_reader_principals
 }
 
+module "coredump" {
+  source = "../../coredump"
+  zone   = var.zone
+}
+
 resource "aws_vpc" "main" {
   cidr_block                       = var.primary_ipv4_cidr
   assign_generated_ipv6_cidr_block = true
@@ -29,6 +34,7 @@ resource "aws_vpc" "main" {
     managedby              = "vespa-cloud"
     zone                   = var.zone.name
     archive_bucket         = module.archive.bucket
+    coredump_bucket        = module.coredump.bucket
     vespa_template_version = var.zone.template_version
   }
 }

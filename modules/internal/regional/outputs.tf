@@ -48,3 +48,7 @@ output "eip_ids" {
 output "archive_bucket" {
   value = module.archive.bucket
 }
+
+output "coredump_bucket" {
+  value = module.coredump.bucket
+}

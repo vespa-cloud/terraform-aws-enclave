@@ -223,13 +223,39 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
         ]
         Resource = "arn:aws:s3:::vespa-archive-*"
       },
-      { # Allow hosts to generate data key to encrypt when uploading to archive bucket
+      { # Allow hosts to upload encrypted core dumps to their core dump bucket
+        Effect = "Allow"
+        Action = [
+          "s3:PutObject",
+          "s3:PutObjectTagging",
+        ]
+        Resource = "arn:aws:s3:::vespa-coredump-*"
+      },
+      { # Allow hosts to generate data key to encrypt when uploading to S3 buckets (e.g. archive)
         Effect   = "Allow"
         Action   = "kms:GenerateDataKey"
         Resource = "*"
         Condition = {
           StringLike = {
             "kms:ViaService" : "s3.*.amazonaws.com"
+          }
+        }
+      },
+      { # Allow hosts to upload core dumps with SSE-KMS. Multipart uploads (any dump > a few MB)
+        # require kms:Decrypt in addition to kms:GenerateDataKey. This grants no data read
+        # access: hosts have no s3:GetObject on the core dump buckets.
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey",
+        ]
+        Resource = "*"
+        Condition = {
+          StringLike = {
+            "kms:ViaService" : "s3.*.amazonaws.com"
+          }
+          "ForAnyValue:StringLike" = {
+            "kms:ResourceAliases" = "alias/vespa-coredump-key-*"
           }
         }
       },

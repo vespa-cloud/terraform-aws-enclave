@@ -20,10 +20,10 @@ This module is published on both the Terraform and OpenTofu registries.
 ## What this module sets up
 - IAM roles for the Vespa Cloud provisioner and tenant hosts
 - IAM policies granting the provisioner permission to manage EC2 instances, EBS volumes, load balancers, KMS keys and VPC endpoint services
-- IAM policies for tenant hosts to upload to archive buckets, access ECR container images and use SSM
+- IAM policies for tenant hosts to upload to archive and core dump buckets, access ECR container images and use SSM
 - An instance profile for the tenant host service role
 
-Networking (VPC, subnets, NAT gateway, security groups, VPC endpoints, KMS keys, S3 archive/backup buckets)
+Networking (VPC, subnets, NAT gateway, security groups, VPC endpoints, KMS keys, S3 archive/backup/coredump buckets)
 is created per-zone via the `modules/zone` submodule after the root module has been applied.
 
 ## Requirements
