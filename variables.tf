@@ -18,9 +18,10 @@ variable "vespa_cloud_account" {
 variable "all_zones" {
   description = "All AWS Vespa Cloud zones"
   type = list(object({
-    environment = string
-    region      = string
-    tag         = string
+    environment     = string
+    region          = string
+    tag             = string
+    configserver_az = optional(list(string))
   }))
   default = [
     { environment = "dev", region = "aws-us-east-1c", tag = "dev.aws-use-1c" },

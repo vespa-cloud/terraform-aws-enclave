@@ -1,28 +1,29 @@
 
 variable "zone" {
-  description = "Vespa Cloud zone to bootstrap. zone.az lists every AWS AZ ID this Vespa zone spans; must contain at least two entries (this module is for multi-AZ Vespa zones; use modules/zone for single-AZ)."
+  description = "Vespa Cloud zone to bootstrap. This module is for multi-AZ Vespa zones; zone.configserver_az must list at least 3 AZs (the AZs Vespa Cloud configservers run in). For single-AZ zones, use modules/zone instead."
   type = object({
     environment      = string,
     region           = string,
     name             = string,
     tag              = string,
     az               = list(string),
+    configserver_az  = list(string),
     template_version = string,
   })
   validation {
-    condition     = length(var.zone.az) > 1
-    error_message = "zone.az must contain more than one AWS AZ ID. This module is for multi-AZ Vespa zones; for single-AZ zones, use modules/zone instead."
+    condition     = length(var.zone.configserver_az) >= 3
+    error_message = "zone.configserver_az must contain at least 3 AWS AZ IDs. This module is for multi-AZ Vespa zones; configservers run in at least 3 AZs for HA. For single-AZ zones, use modules/zone instead."
   }
 }
 
 variable "azs" {
-  description = "AWS AZ IDs to deploy in this account. Defaults to var.zone.az (mirrors Vespa Cloud's deployment). Override to deploy in different AZs than Vespa Cloud; tenants may provision in AZs the Vespa region itself does not occupy."
+  description = "Additional AWS AZ IDs to deploy in this account, beyond the Vespa Cloud configserver AZs. The deployed AZs are the union of var.azs and var.zone.configserver_az; configserver AZs are always included so the enclave VPC can reach configservers. Leave null to deploy only in the configserver AZs."
   type        = list(string)
   default     = null
   nullable    = true
   validation {
     condition     = var.azs == null || length(coalesce(var.azs, [])) >= 1
-    error_message = "azs must contain at least one AZ ID."
+    error_message = "azs must contain at least one AZ ID when set."
   }
 }
 
