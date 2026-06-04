@@ -9,5 +9,8 @@ Terraform modules.
 [`multi-region`](./multi-region/)
 : An example that shows a full set up with support for the CI/CD pipeline and two production zones.
 
+[`multi-az`](./multi-az/)
+: An example of a zone that spans multiple Availability Zones, using the `modules/zone_multi_az` submodule.
+
 [`custom-ebs-kms-key-policy`](./custom-ebs-kms-key-policy/)
 : An example that shows how to extend the EBS KMS key policy to grant an external principal (e.g. an agentless security scanner) access to encrypted volumes.

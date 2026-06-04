@@ -18,7 +18,7 @@ locals {
 }
 
 module "regional" {
-  source                    = "../regional"
+  source                    = "../internal/regional"
   zone                      = local.zone
   is_multi_az               = false
   azs                       = [local.zone_az_id]
@@ -30,7 +30,7 @@ module "regional" {
 }
 
 module "zonal" {
-  source            = "../zonal"
+  source            = "../internal/zonal"
   zone              = local.zone
   azs               = [local.zone_az_id]
   vpc_id            = module.regional.vpc_id
@@ -163,7 +163,7 @@ moved {
   to   = module.regional.module.archive
 }
 
-# Subnets, route-table associations, and the NACL moved into modules/zonal.
+# Subnets, route-table associations, and the NACL moved into modules/internal/zonal.
 moved {
   from = aws_subnet.hosts
   to   = module.zonal.aws_subnet.hosts[0]

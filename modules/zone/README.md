@@ -1,10 +1,11 @@
 # Zone
 
 In Vespa Cloud each deployment of a Vespa application goes into a
-[zone](https://cloud.vespa.ai/en/reference/zones). Zones hosted on AWS are
-always contained within one
+[zone](https://cloud.vespa.ai/en/reference/zones). This module is for zones
+contained within a single
 [Availability Zone](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-availability-zones)
-in AWS.
+in AWS, which is the common case. For zones that Vespa Cloud has designated as
+multi-AZ, use [`modules/zone_multi_az`](../zone_multi_az) instead.
 
 An Enclave VPC of Vespa Cloud must be located in the same Availability Zone as
 the configuration servers managing that Enclave VPC. This ensures that fail-over

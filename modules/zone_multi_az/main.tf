@@ -55,7 +55,7 @@ resource "terraform_data" "validations" {
 }
 
 module "regional" {
-  source                    = "../regional"
+  source                    = "../internal/regional"
   zone                      = local.primary_zone
   is_multi_az               = true
   azs                       = local.azs_ordered
@@ -67,7 +67,7 @@ module "regional" {
 }
 
 module "zonal" {
-  source            = "../zonal"
+  source            = "../internal/zonal"
   zone              = local.primary_zone
   azs               = local.azs_ordered
   vpc_id            = module.regional.vpc_id

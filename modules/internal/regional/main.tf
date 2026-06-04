@@ -15,7 +15,7 @@ data "aws_iam_session_context" "current" {
 }
 
 module "archive" {
-  source                    = "../archive"
+  source                    = "../../archive"
   zone                      = var.zone
   archive_reader_principals = var.archive_reader_principals
 }

@@ -21,17 +21,17 @@ variable "azs" {
 }
 
 variable "vpc_id" {
-  description = "VPC ID from modules/regional."
+  description = "VPC ID from modules/internal/regional."
   type        = string
 }
 
 variable "security_group_id" {
-  description = "Security group ID from modules/regional, attached to the interface VPC endpoints."
+  description = "Security group ID from modules/internal/regional, attached to the interface VPC endpoints."
   type        = string
 }
 
 variable "ipv4_cidrs" {
-  description = "IPv4 CIDR blocks aligned with var.azs. Index 0 is the primary VPC CIDR; indices 1+ are the secondary CIDR-block associations. Sourced from modules/regional outputs so the dependency on those resources is implicit."
+  description = "IPv4 CIDR blocks aligned with var.azs. Index 0 is the primary VPC CIDR; indices 1+ are the secondary CIDR-block associations. Sourced from modules/internal/regional outputs so the dependency on those resources is implicit."
   type        = list(string)
   validation {
     condition     = length(var.ipv4_cidrs) == length(var.azs)

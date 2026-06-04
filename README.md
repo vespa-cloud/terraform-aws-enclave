@@ -40,6 +40,10 @@ IAM role, SSO). See https://registry.terraform.io/providers/hashicorp/aws/latest
 Since Vespa Cloud spans multiple AWS regions, you need one AWS provider per region. The root module
 sets up global IAM resources, and each zone submodule creates region-specific networking.
 
+Most zones live in a single Availability Zone and use the `modules/zone` submodule (shown below).
+Zones that Vespa Cloud has designated as multi-AZ instead use the `modules/zone_multi_az` submodule;
+see [`modules/zone_multi_az`](./modules/zone_multi_az) for details.
+
 Production deployments in Vespa Cloud go through a CI/CD pipeline that requires `test` and
 `staging` zones in addition to your `prod` zones. A `dev` zone is also typically set up for
 manual development deployments. The example below sets up all four environments.
@@ -135,7 +139,8 @@ See complete working examples in `examples/`.
   Each zone object contains:
   - `name`: Full Vespa Cloud zone name (e.g. `prod.aws-us-east-1c`)
   - `region`: Vespa region id (e.g. `aws-us-east-1c`)
-  - `az`: AWS Availability Zone ID (e.g. `use1-az6`)
+  - `az`: List of AWS Availability Zone IDs the zone spans (e.g. `["use1-az6"]`)
+  - `configserver_az`: For multi-AZ zones, the AWS Availability Zone IDs the Vespa Cloud configservers run in (unset for single-AZ zones)
   - `template_version`: Module template version
 
 - `vespa_cloud_account` (string): The Vespa Cloud AWS account used to manage enclave accounts.
@@ -171,6 +176,7 @@ This module follows semantic versioning. Pin a compatible version range when con
 ## Examples
 - Basic: `./examples/basic`
 - Multi-region: `./examples/multi-region`
+- Multi-AZ: `./examples/multi-az`
 
 ## License
 Apache-2.0. See LICENSE.
