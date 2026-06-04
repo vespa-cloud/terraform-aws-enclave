@@ -97,7 +97,7 @@ resource "aws_vpc_endpoint" "interface" {
   security_group_ids  = [var.security_group_id]
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  service_name        = "com.amazonaws.${data.aws_region.current.id}.${each.key}"
+  service_name        = "com.amazonaws.${data.aws_region.current.region}.${each.key}"
   tags = {
     Name      = "vespa-${replace(each.key, ".", "-")}-${var.zone.name}"
     managedby = "vespa-cloud"

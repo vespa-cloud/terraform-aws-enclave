@@ -98,12 +98,6 @@ resource "aws_nat_gateway" "regional" {
     managedby = "vespa-cloud"
   }
   depends_on = [aws_internet_gateway.gw]
-
-  # The regional NAT gateway manages its own per-AZ address assignments; ignore
-  # drift so AWS-side expansion does not produce a perpetual diff.
-  lifecycle {
-    ignore_changes = [regional_nat_gateway_address]
-  }
 }
 
 # Routing tables
@@ -207,7 +201,7 @@ resource "aws_vpc_endpoint" "ecr_s3" {
   vpc_id            = aws_vpc.main.id
   route_table_ids   = [aws_route_table.hosts.id]
   vpc_endpoint_type = "Gateway"
-  service_name      = "com.amazonaws.${data.aws_region.current.id}.s3"
+  service_name      = "com.amazonaws.${data.aws_region.current.region}.s3"
   tags = {
     Name      = "vespa-s3gw-${var.zone.name}"
     managedby = "vespa-cloud"
