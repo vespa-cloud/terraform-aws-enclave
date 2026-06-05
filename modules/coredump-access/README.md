@@ -9,6 +9,10 @@ buckets, and is automatically denied after the expiry time you set in
 `read_access_expires_at`. Extending access requires updating the timestamp and
 re-applying.
 
+`read_access_expires_at` is unset (`null`) by default, which creates no IAM
+resources and grants no access. You can keep the module block in your
+configuration permanently and only set the timestamp when access is needed.
+
 Core dumps are compressed and encrypted on the Vespa host before they are written
 to the bucket. The decryption key is held by Vespa Cloud; this module only grants
 access to the encrypted bytes.
@@ -31,4 +35,5 @@ module "coredump_access" {
 }
 ```
 
-To revoke access before the expiry time, remove the module and apply.
+To revoke access before the expiry time, unset `read_access_expires_at` (or
+remove the module) and apply.

@@ -9,6 +9,9 @@ terraform {
 
 locals {
   debug_account_id = split(":", var.debug_instance_role_arn)[4]
+  # Grant access only when an expiry time is set. Unset (null) creates no
+  # IAM resources, so customers can keep the module block present but inert.
+  enabled = var.read_access_expires_at == null ? 0 : 1
 }
 
 # Role assumed by Vespa Cloud debug instances to read encrypted core dumps
@@ -20,6 +23,7 @@ locals {
 # validates named role principals on write, so a direct reference would
 # break if the debug instance role does not exist yet, or is recreated.
 resource "aws_iam_role" "coredump_read" {
+  count       = local.enabled
   name        = "vespa-coredump-read"
   description = "Allows Vespa Cloud debug instances time-limited read access to core dump buckets"
   assume_role_policy = jsonencode({
@@ -48,13 +52,15 @@ resource "aws_iam_role" "coredump_read" {
 }
 
 resource "aws_iam_role_policy_attachment" "coredump_read" {
-  role       = aws_iam_role.coredump_read.name
-  policy_arn = aws_iam_policy.coredump_read.arn
+  count      = local.enabled
+  role       = aws_iam_role.coredump_read[0].name
+  policy_arn = aws_iam_policy.coredump_read[0].arn
 }
 
 resource "aws_iam_policy" "coredump_read" {
   #checkov:skip=CKV_AWS_356:KMS statement requires Resource '*', constrained by alias and ViaService conditions
-  name = "vespa-coredump-read-policy"
+  count = local.enabled
+  name  = "vespa-coredump-read-policy"
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
