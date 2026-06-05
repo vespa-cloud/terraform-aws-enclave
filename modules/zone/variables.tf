@@ -9,6 +9,10 @@ variable "zone" {
     az               = string,
     template_version = string,
   })
+  validation {
+    condition     = var.zone.az != null
+    error_message = "modules/zone is single-AZ and requires zone.az to be set. Multi-AZ zones have a null az; use modules/zone_multi_az for them."
+  }
 }
 
 variable "zone_ipv4_cidr" {

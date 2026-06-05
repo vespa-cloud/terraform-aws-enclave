@@ -18,9 +18,10 @@ variable "vespa_cloud_account" {
 variable "all_zones" {
   description = "All AWS Vespa Cloud zones"
   type = list(object({
-    environment = string
-    region      = string
-    tag         = string
+    environment     = string
+    region          = string
+    tag             = string
+    configserver_az = optional(list(string))
   }))
   default = [
     { environment = "dev", region = "aws-us-east-1c", tag = "dev.aws-use-1c" },
@@ -50,7 +51,8 @@ variable "all_zones" {
 }
 
 variable "az_by_region" {
-  description = "Mapping between Availability Zone and Availability Zone ID for the Vespa Cloud AWS zones"
+  description = "Mapping between single-AZ Vespa Cloud region and its AWS Availability Zone ID. Multi-AZ zones do not appear here; their AZs are carried on the zone's configserver_az (and extended per-deployment via the zone_multi_az module's azs variable)."
+  type        = map(string)
   default = {
     aws-us-east-1c      = "use1-az6",
     aws-us-west-2a      = "usw2-az1",

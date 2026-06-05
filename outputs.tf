@@ -4,8 +4,11 @@ locals {
     for zone in var.all_zones :
     zone.environment => merge(
       {
-        name             = "${zone.environment}.${zone.region}",
-        az               = var.az_by_region[zone.region],
+        name = "${zone.environment}.${zone.region}",
+        # Single-AZ regions carry their AZ ID here. Multi-AZ regions are absent
+        # from az_by_region (their AZs come from configserver_az / the
+        # zone_multi_az azs variable), so az is null for them.
+        az               = try(var.az_by_region[zone.region], null),
         template_version = local.template_version,
       },
       zone
