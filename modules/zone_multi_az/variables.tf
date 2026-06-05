@@ -2,11 +2,13 @@
 variable "zone" {
   description = "Vespa Cloud zone to bootstrap. This module is for multi-AZ Vespa zones; zone.configserver_az must list at least 3 AZs (the AZs Vespa Cloud configservers run in). For single-AZ zones, use modules/zone instead."
   type = object({
-    environment      = string,
-    region           = string,
-    name             = string,
-    tag              = string,
-    az               = list(string),
+    environment = string,
+    region      = string,
+    name        = string,
+    tag         = string,
+    # az is unused by this module (the deployed AZs come from configserver_az
+    # and var.azs) and is null for multi-AZ regions, so it is optional here.
+    az               = optional(string),
     configserver_az  = list(string),
     template_version = string,
   })

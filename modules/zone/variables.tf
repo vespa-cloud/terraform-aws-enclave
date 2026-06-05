@@ -6,12 +6,12 @@ variable "zone" {
     region           = string,
     name             = string,
     tag              = string,
-    az               = list(string),
+    az               = string,
     template_version = string,
   })
   validation {
-    condition     = length(var.zone.az) == 1
-    error_message = "modules/zone is single-AZ and requires zone.az to have exactly one element. For multi-AZ zones, use modules/zone_multi_az."
+    condition     = var.zone.az != null
+    error_message = "modules/zone is single-AZ and requires zone.az to be set. Multi-AZ zones have a null az; use modules/zone_multi_az for them."
   }
 }
 

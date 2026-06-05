@@ -51,25 +51,25 @@ variable "all_zones" {
 }
 
 variable "az_by_region" {
-  description = "Mapping between Vespa Cloud region and the AWS Availability Zone IDs it spans. Single-AZ regions have a one-element list; multi-AZ regions list every AZ ID the zone occupies."
-  type        = map(list(string))
+  description = "Mapping between single-AZ Vespa Cloud region and its AWS Availability Zone ID. Multi-AZ zones do not appear here; their AZs are carried on the zone's configserver_az (and extended per-deployment via the zone_multi_az module's azs variable)."
+  type        = map(string)
   default = {
-    aws-us-east-1c      = ["use1-az6"],
-    aws-us-west-2a      = ["usw2-az1"],
-    aws-eu-west-1a      = ["euw1-az2"],
-    aws-euw1-az1        = ["euw1-az1"],
-    aws-use2-az3        = ["use2-az3"],
-    aws-use2-az1        = ["use2-az1"],
-    aws-use1-az4        = ["use1-az4"],
-    aws-ap-northeast-1a = ["apne1-az4"],
-    aws-euw1-az1        = ["euw1-az1"],
-    aws-euc1-az1        = ["euc1-az1"],
-    aws-euc1-az3        = ["euc1-az3"],
-    aws-eun1-az1        = ["eun1-az1"],
-    aws-apne1-az1       = ["apne1-az1"],
-    aws-usw2-az3        = ["usw2-az3"],
-    aws-cac1-az1        = ["cac1-az1"],
-    aws-cac1-az2        = ["cac1-az2"],
-    aws-aps1-az1        = ["aps1-az1"],
+    aws-us-east-1c      = "use1-az6",
+    aws-us-west-2a      = "usw2-az1",
+    aws-eu-west-1a      = "euw1-az2",
+    aws-euw1-az1        = "euw1-az1",
+    aws-use2-az3        = "use2-az3",
+    aws-use2-az1        = "use2-az1",
+    aws-use1-az4        = "use1-az4",
+    aws-ap-northeast-1a = "apne1-az4",
+    aws-euw1-az1        = "euw1-az1",
+    aws-euc1-az1        = "euc1-az1",
+    aws-euc1-az3        = "euc1-az3",
+    aws-eun1-az1        = "eun1-az1",
+    aws-apne1-az1       = "apne1-az1",
+    aws-usw2-az3        = "usw2-az3",
+    aws-cac1-az1        = "cac1-az1",
+    aws-cac1-az2        = "cac1-az2",
+    aws-aps1-az1        = "aps1-az1",
   }
 }

@@ -8,11 +8,11 @@ terraform {
 }
 
 locals {
-  zone_az_id = coalesce(var.zone_az, var.zone.az[0])
+  zone_az_id = coalesce(var.zone_az, var.zone.az)
   zone = merge(
     var.zone,
     {
-      az = [local.zone_az_id]
+      az = local.zone_az_id
     }
   )
 }

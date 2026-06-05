@@ -34,7 +34,7 @@ locals {
 
   secondary_ipv4_cidrs = [for az in local.secondary_azs : local.cidr_by_az[az]]
 
-  primary_zone = merge(var.zone, { az = [local.primary_az_id] })
+  primary_zone = merge(var.zone, { az = local.primary_az_id })
 }
 
 resource "terraform_data" "validations" {

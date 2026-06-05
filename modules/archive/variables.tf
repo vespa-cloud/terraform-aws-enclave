@@ -6,7 +6,7 @@ variable "zone" {
     region      = string,
     name        = string,
     tag         = string,
-    az          = list(string),
+    az          = optional(string),
   })
 }
 
