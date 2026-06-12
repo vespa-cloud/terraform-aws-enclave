@@ -14,6 +14,15 @@ data "aws_availability_zone" "current" {
   zone_id = var.azs[count.index]
 }
 
+locals {
+  is_multi_az = length(var.azs) > 1
+
+  # Per-AZ infix inserted into subnet Name tags in multi-AZ zones (e.g. "-az4")
+  az_name_infix = [
+    for az in var.azs : local.is_multi_az ? "-${regex("az\\d+$", az)}" : ""
+  ]
+}
+
 # Subnets
 #
 # Each AZ slice is a /16, further divided in the following networks:
@@ -31,7 +40,7 @@ resource "aws_subnet" "hosts" {
   assign_ipv6_address_on_creation = true
   availability_zone               = data.aws_availability_zone.current[count.index].name
   tags = {
-    Name      = count.index == 0 ? "${var.zone.tag}-subnet-tenant" : "${var.zone.name}-subnet-tenant-${var.azs[count.index]}"
+    Name      = "${var.zone.tag}${local.az_name_infix[count.index]}-subnet-tenant"
     managedby = "vespa-cloud"
     zone      = var.zone.name
     service   = "tenant"
@@ -46,7 +55,7 @@ resource "aws_subnet" "lb" {
   assign_ipv6_address_on_creation = true
   availability_zone               = data.aws_availability_zone.current[count.index].name
   tags = {
-    Name      = count.index == 0 ? "${var.zone.tag}-subnet-tenantelb" : "${var.zone.name}-subnet-tenantelb-${var.azs[count.index]}"
+    Name      = "${var.zone.tag}${local.az_name_infix[count.index]}-subnet-tenantelb"
     managedby = "vespa-cloud"
     zone      = var.zone.name
     service   = "tenantelb"
@@ -61,7 +70,7 @@ resource "aws_subnet" "natgw" {
   assign_ipv6_address_on_creation = true
   availability_zone               = data.aws_availability_zone.current[count.index].name
   tags = {
-    Name      = count.index == 0 ? "${var.zone.name}-subnet-natgw" : "${var.zone.name}-subnet-natgw-${var.azs[count.index]}"
+    Name      = "${var.zone.name}${local.az_name_infix[count.index]}-subnet-natgw"
     managedby = "vespa-cloud"
     zone      = var.zone.name
     service   = "natgw"
