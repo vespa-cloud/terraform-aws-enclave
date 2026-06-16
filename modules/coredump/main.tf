@@ -4,22 +4,16 @@ terraform {
     aws = {
       source = "hashicorp/aws"
     }
-    random = {
-      source = "hashicorp/random"
-    }
   }
 }
 
 data "aws_caller_identity" "current" {}
 
-resource "random_string" "coredump" {
-  length  = 6
-  special = false
-  upper   = false
-}
-
+# The bucket name is deterministic (no random suffix) so the core dump upload
+# feature flag can be configured with the exact name. Uniqueness is guaranteed
+# by the account id (globally unique) and zone.name (environment + region).
 resource "aws_s3_bucket" "coredump" {
-  bucket = "vespa-coredump-${data.aws_caller_identity.current.account_id}-${var.zone.name}-${random_string.coredump.id}"
+  bucket = "vespa-coredump-${data.aws_caller_identity.current.account_id}-${var.zone.name}"
   tags = {
     managedby = "vespa-cloud"
     zone      = var.zone.name
