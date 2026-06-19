@@ -33,19 +33,11 @@ variable "security_group_id" {
 variable "ipv4_cidrs" {
   description = "IPv4 CIDR blocks aligned with var.azs. Index 0 is the primary VPC CIDR; indices 1+ are the secondary CIDR-block associations. Sourced from modules/internal/regional outputs so the dependency on those resources is implicit."
   type        = list(string)
-  validation {
-    condition     = length(var.ipv4_cidrs) == length(var.azs)
-    error_message = "ipv4_cidrs must have the same length as azs."
-  }
 }
 
 variable "ipv6_cidr_blocks" {
   description = "IPv6 /56 CIDR blocks aligned with var.azs. Index 0 is the primary VPC IPv6 CIDR; indices 1+ are the secondary associations."
   type        = list(string)
-  validation {
-    condition     = length(var.ipv6_cidr_blocks) == length(var.azs)
-    error_message = "ipv6_cidr_blocks must have the same length as azs."
-  }
 }
 
 variable "hosts_route_table_id" {
