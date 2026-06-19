@@ -23,6 +23,19 @@ locals {
   ]
 }
 
+resource "terraform_data" "validations" {
+  lifecycle {
+    precondition {
+      condition     = length(var.ipv4_cidrs) == length(var.azs)
+      error_message = "ipv4_cidrs must have the same length as azs."
+    }
+    precondition {
+      condition     = length(var.ipv6_cidr_blocks) == length(var.azs)
+      error_message = "ipv6_cidr_blocks must have the same length as azs."
+    }
+  }
+}
+
 # Subnets
 #
 # Each AZ slice is a /16, further divided in the following networks:

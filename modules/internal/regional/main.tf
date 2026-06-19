@@ -14,6 +14,15 @@ data "aws_iam_session_context" "current" {
   arn = data.aws_caller_identity.current.arn
 }
 
+resource "terraform_data" "validations" {
+  lifecycle {
+    precondition {
+      condition     = length(var.secondary_ipv4_cidrs) == max(0, length(var.azs) - 1)
+      error_message = "secondary_ipv4_cidrs length must equal length(azs) - 1."
+    }
+  }
+}
+
 module "archive" {
   source                    = "../../archive"
   zone                      = var.zone
