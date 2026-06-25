@@ -13,7 +13,7 @@ variable "zone" {
     template_version = string,
   })
   validation {
-    condition     = length(var.zone.configserver_az) >= 3
+    condition     = var.zone.configserver_az != null && length(var.zone.configserver_az) >= 3
     error_message = "zone.configserver_az must contain at least 3 AWS AZ IDs. This module is for multi-AZ Vespa zones; configservers run in at least 3 AZs for HA. For single-AZ zones, use modules/zone instead."
   }
 }
