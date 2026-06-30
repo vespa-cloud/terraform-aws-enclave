@@ -1,7 +1,7 @@
 locals {
   # NOTE: Do not rename or move this variable!
   # Used by github actions to tag releases. Bump for non-trivial changes.
-  template_version = "1.8.4"
+  template_version = "1.8.5"
 }
 
 terraform {
