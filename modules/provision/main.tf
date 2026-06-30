@@ -1,4 +1,3 @@
-
 terraform {
   required_providers {
     aws = {
@@ -33,6 +32,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:TerminateInstances"
     ]
     resources = [
+      "arn:aws:ec2:*:*:capacity-reservation/*",
       "arn:aws:ec2:*:*:image/*",
       "arn:aws:ec2:*:*:instance/*",
       "arn:aws:ec2:*:*:network-interface/*",
@@ -41,6 +41,44 @@ data "aws_iam_policy_document" "provision_policy" {
       "arn:aws:ec2:*:*:subnet/*",
       "arn:aws:ec2:*:*:volume/*",
       "arn:aws:iam::*:instance-profile/*",
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "ec2:CreateCapacityReservation",
+    ]
+    resources = [
+      "arn:aws:ec2:*:*:capacity-reservation/*",
+    ]
+    effect = "Allow"
+
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:InstanceMatchCriteria"
+      values   = ["targeted"]
+    }
+  }
+
+  statement {
+    actions = [
+      "ec2:CancelCapacityReservation",
+      "ec2:ModifyCapacityReservation",
+    ]
+    resources = [
+      "arn:aws:ec2:*:*:capacity-reservation/*",
+    ]
+    effect = "Allow"
+  }
+
+  statement {
+    actions = [
+      "ec2:ModifyInstanceCapacityReservationAttributes",
+    ]
+    resources = [
+      "arn:aws:ec2:*:*:capacity-reservation/*",
+      "arn:aws:ec2:*:*:instance/*",
     ]
     effect = "Allow"
   }
@@ -129,6 +167,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:CreateVpcEndpointServiceConfiguration",
       "ec2:DeleteVpcEndpointServiceConfigurations",
       "ec2:DescribeAccountAttributes",
+      "ec2:DescribeCapacityReservations",
       "ec2:DescribeAddresses",
       "ec2:DescribeClassicLinkInstances",
       "ec2:DescribeCoipPools",
