@@ -34,13 +34,13 @@ data "aws_iam_policy_document" "provision_policy" {
     ]
     resources = [
       "arn:aws:ec2:*:*:image/*",
-      "arn:aws:ec2:*:*:instance/*",
-      "arn:aws:ec2:*:*:network-interface/*",
-      "arn:aws:ec2:*:*:security-group/*",
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:instance/*",
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:network-interface/*",
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:security-group/*",
       "arn:aws:ec2:*::snapshot/*",
-      "arn:aws:ec2:*:*:subnet/*",
-      "arn:aws:ec2:*:*:volume/*",
-      "arn:aws:iam::*:instance-profile/*",
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:subnet/*",
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:volume/*",
+      "arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/*",
     ]
     effect = "Allow"
   }
