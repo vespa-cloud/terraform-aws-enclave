@@ -17,7 +17,7 @@ jobs:
         with:
           tofu_version: latest
       - name: Format
-        run: tofu fmt -check
+        run: tofu fmt -check -recursive
       - name: Initialize
         run: tofu init -backend=false
       - name: Validate
