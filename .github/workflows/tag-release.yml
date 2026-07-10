@@ -12,6 +12,9 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  smoke-test:
+    uses: vespa-engine/gh-actions/.github/workflows/tf-smoke-test.yml@main
   tag-release:
+    needs: smoke-test
     uses: vespa-engine/gh-actions/.github/workflows/tf-tag-release.yml@main
     secrets: inherit

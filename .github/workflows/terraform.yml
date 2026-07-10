@@ -32,3 +32,5 @@ jobs:
         uses: bridgecrewio/checkov-action@master
         with:
           framework: terraform
+  smoke-test:
+    uses: vespa-engine/gh-actions/.github/workflows/tf-smoke-test.yml@main
