@@ -47,6 +47,11 @@ variable "all_zones" {
     { environment = "prod", region = "aws-cac1-az1", tag = "prod.aws-cac1-az1" },
     { environment = "prod", region = "aws-cac1-az2", tag = "prod.aws-cac1-az2" },
     { environment = "prod", region = "aws-aps1-az1", tag = "prod.aws-aps1-az1" },
+    { environment = "prod", region = "aws-usw2-az2", tag = "prod.aws-usw2-az2" },
+    { environment = "prod", region = "aws-cac1-az4", tag = "prod.aws-cac1-az4" },
+    { environment = "prod", region = "aws-euc1-az2", tag = "prod.aws-euc1-az2" },
+    { environment = "prod", region = "aws-euw1-az3", tag = "prod.aws-euw1-az3" },
+    { environment = "prod", region = "aws-apne1-az2", tag = "prod.aws-apne1-az2" },
 
     # deprecated in favor of dev zone - remove when bumping module to 2.x
     { environment = "perf", region = "aws-us-east-1c", tag = "perf.aws-use-1c" },
@@ -74,6 +79,11 @@ variable "az_by_region" {
     aws-usw2-az3        = "usw2-az3",
     aws-cac1-az1        = "cac1-az1",
     aws-cac1-az2        = "cac1-az2",
+    aws-cac1-az4        = "cac1-az4",
     aws-aps1-az1        = "aps1-az1",
+    aws-usw2-az2        = "usw2-az2",
+    aws-euc1-az2        = "euc1-az2",
+    aws-euw1-az3        = "euw1-az3",
+    aws-apne1-az2       = "apne1-az2",
   }
 }
