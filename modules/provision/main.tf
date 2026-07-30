@@ -23,16 +23,20 @@ data "aws_iam_policy_document" "provision_policy" {
   statement {
     actions = [
       "ec2:AttachVolume",
+      "ec2:CancelCapacityReservation",
+      "ec2:CreateCapacityReservation",
       "ec2:CreateTags",
       "ec2:CreateVolume",
       "ec2:DeleteTags",
       "ec2:DeleteVolume",
       "ec2:DetachVolume",
       "ec2:ModifyInstanceAttribute",
+      "ec2:ModifyInstanceCapacityReservationAttributes",
       "ec2:RunInstances",
       "ec2:TerminateInstances"
     ]
     resources = [
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
       "arn:aws:ec2:*:*:image/*",
       "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:instance/*",
       "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:network-interface/*",
@@ -130,6 +134,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:DeleteVpcEndpointServiceConfigurations",
       "ec2:DescribeAccountAttributes",
       "ec2:DescribeAddresses",
+      "ec2:DescribeCapacityReservations",
       "ec2:DescribeClassicLinkInstances",
       "ec2:DescribeCoipPools",
       "ec2:DescribeImages",
