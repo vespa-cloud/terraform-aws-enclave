@@ -271,6 +271,11 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
           "ecr:GetDownloadUrlForLayer",
         ]
         Resource = "arn:aws:ecr:*:${var.vespa_cloud_account}:repository/*"
+      },
+      { # Allow SSM Default Host Management patch policy to read its config, needed since attaching AmazonSSMManagedInstanceCore directly overrides the permissions SSM would otherwise grant.
+        Effect   = "Allow"
+        Action   = "s3:GetObject"
+        Resource = "arn:aws:s3:::aws-quicksetup-patchpolicy-*"
       }
     ]
   })
