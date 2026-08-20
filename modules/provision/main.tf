@@ -23,20 +23,19 @@ data "aws_iam_policy_document" "provision_policy" {
   statement {
     actions = [
       "ec2:AttachVolume",
-      "ec2:CancelCapacityReservation",
-      "ec2:CreateCapacityReservation",
       "ec2:CreateTags",
       "ec2:CreateVolume",
       "ec2:DeleteTags",
       "ec2:DeleteVolume",
       "ec2:DetachVolume",
       "ec2:ModifyInstanceAttribute",
+      // Retargets an instance at a capacity reservation; authorized on the instance, so it cannot be
+      // scoped by the reservation's tags like the statements below
       "ec2:ModifyInstanceCapacityReservationAttributes",
       "ec2:RunInstances",
       "ec2:TerminateInstances"
     ]
     resources = [
-      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
       "arn:aws:ec2:*:*:image/*",
       "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:instance/*",
       "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:network-interface/*",
@@ -47,6 +46,39 @@ data "aws_iam_policy_document" "provision_policy" {
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/*",
     ]
     effect = "Allow"
+  }
+
+  // Capacity reservations securing host rebuilds: limited to reservations the provisioner manages,
+  // identified by the managed-by tag it always sets on creation
+  statement {
+    actions = [
+      "ec2:CreateCapacityReservation",
+      "ec2:CreateTags",
+    ]
+    resources = [
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
+    ]
+    effect = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestTag/managed-by"
+      values   = ["vespa-cloud-provisioner"]
+    }
+  }
+
+  statement {
+    actions = [
+      "ec2:CancelCapacityReservation",
+    ]
+    resources = [
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
+    ]
+    effect = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/managed-by"
+      values   = ["vespa-cloud-provisioner"]
+    }
   }
 
   statement {
