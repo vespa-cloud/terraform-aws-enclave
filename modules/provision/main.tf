@@ -29,6 +29,9 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:DeleteVolume",
       "ec2:DetachVolume",
       "ec2:ModifyInstanceAttribute",
+      // Retargets an instance at a capacity reservation. This is the instance side of the
+      // authorization; the reservation side is granted, tag-scoped, in its own statement below
+      "ec2:ModifyInstanceCapacityReservationAttributes",
       "ec2:RunInstances",
       "ec2:TerminateInstances"
     ]
@@ -43,6 +46,69 @@ data "aws_iam_policy_document" "provision_policy" {
       "arn:aws:iam::${data.aws_caller_identity.current.account_id}:instance-profile/*",
     ]
     effect = "Allow"
+  }
+
+  // Capacity reservations securing host rebuilds: limited to reservations the provisioner manages,
+  // identified by the managed-by tag it always sets on creation
+  statement {
+    actions = [
+      "ec2:CreateCapacityReservation",
+    ]
+    resources = [
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
+    ]
+    effect = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestTag/managed-by"
+      values   = ["vespa-cloud-provisioner"]
+    }
+    // Only reservations with a bounded end date: the provisioner cannot create standing cost
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:EndDateType"
+      values   = ["limited"]
+    }
+  }
+
+  // Tag-on-create only: without the CreateAction pin, tagging (and thereby adopting) an existing
+  // reservation would be allowed
+  statement {
+    actions = [
+      "ec2:CreateTags",
+    ]
+    resources = [
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
+    ]
+    effect = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:CreateAction"
+      values   = ["CreateCapacityReservation"]
+    }
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestTag/managed-by"
+      values   = ["vespa-cloud-provisioner"]
+    }
+  }
+
+  statement {
+    actions = [
+      "ec2:CancelCapacityReservation",
+      // The reservation side of retargeting an instance: the action authorizes on both the instance
+      // (granted above) and the reservation named in the request
+      "ec2:ModifyInstanceCapacityReservationAttributes",
+    ]
+    resources = [
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
+    ]
+    effect = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "aws:ResourceTag/managed-by"
+      values   = ["vespa-cloud-provisioner"]
+    }
   }
 
   statement {
@@ -130,6 +196,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:DeleteVpcEndpointServiceConfigurations",
       "ec2:DescribeAccountAttributes",
       "ec2:DescribeAddresses",
+      "ec2:DescribeCapacityReservations",
       "ec2:DescribeClassicLinkInstances",
       "ec2:DescribeCoipPools",
       "ec2:DescribeImages",
