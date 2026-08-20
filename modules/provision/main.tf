@@ -29,8 +29,8 @@ data "aws_iam_policy_document" "provision_policy" {
       "ec2:DeleteVolume",
       "ec2:DetachVolume",
       "ec2:ModifyInstanceAttribute",
-      // Retargets an instance at a capacity reservation; authorized on the instance, so it cannot be
-      // scoped by the reservation's tags like the statements below
+      // Retargets an instance at a capacity reservation. This is the instance side of the
+      // authorization; the reservation side is granted, tag-scoped, in its own statement below
       "ec2:ModifyInstanceCapacityReservationAttributes",
       "ec2:RunInstances",
       "ec2:TerminateInstances"
@@ -63,6 +63,12 @@ data "aws_iam_policy_document" "provision_policy" {
       variable = "aws:RequestTag/managed-by"
       values   = ["vespa-cloud-provisioner"]
     }
+    // Only reservations with a bounded end date: the provisioner cannot create standing cost
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:EndDateType"
+      values   = ["limited"]
+    }
   }
 
   // Tag-on-create only: without the CreateAction pin, tagging (and thereby adopting) an existing
@@ -90,6 +96,9 @@ data "aws_iam_policy_document" "provision_policy" {
   statement {
     actions = [
       "ec2:CancelCapacityReservation",
+      // The reservation side of retargeting an instance: the action authorizes on both the instance
+      // (granted above) and the reservation named in the request
+      "ec2:ModifyInstanceCapacityReservationAttributes",
     ]
     resources = [
       "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
