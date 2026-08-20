@@ -53,12 +53,33 @@ data "aws_iam_policy_document" "provision_policy" {
   statement {
     actions = [
       "ec2:CreateCapacityReservation",
+    ]
+    resources = [
+      "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
+    ]
+    effect = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "aws:RequestTag/managed-by"
+      values   = ["vespa-cloud-provisioner"]
+    }
+  }
+
+  // Tag-on-create only: without the CreateAction pin, tagging (and thereby adopting) an existing
+  // reservation would be allowed
+  statement {
+    actions = [
       "ec2:CreateTags",
     ]
     resources = [
       "arn:aws:ec2:*:${data.aws_caller_identity.current.account_id}:capacity-reservation/*",
     ]
     effect = "Allow"
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:CreateAction"
+      values   = ["CreateCapacityReservation"]
+    }
     condition {
       test     = "StringEquals"
       variable = "aws:RequestTag/managed-by"
