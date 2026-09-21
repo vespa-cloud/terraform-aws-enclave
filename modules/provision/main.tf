@@ -183,6 +183,7 @@ data "aws_iam_policy_document" "provision_policy" {
       "elasticloadbalancing:ModifyTargetGroupAttributes",
       "elasticloadbalancing:RegisterTargets",
       "elasticloadbalancing:RemoveTags",
+      "elasticloadbalancing:SetSubnets",
     ]
     resources = ["*"]
     effect    = "Allow"
