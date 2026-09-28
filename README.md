@@ -20,10 +20,10 @@ This module is published on both the Terraform and OpenTofu registries.
 ## What this module sets up
 - IAM roles for the Vespa Cloud provisioner and tenant hosts
 - IAM policies granting the provisioner permission to manage EC2 instances, EBS volumes, load balancers, KMS keys and VPC endpoint services
-- IAM policies for tenant hosts to upload to archive and core dump buckets, access ECR container images and use SSM
+- IAM policies for tenant hosts to upload to archive buckets and the existing `vespa-coredump-*` buckets used for memory dumps, access ECR container images and use SSM
 - An instance profile for the tenant host service role
 
-Networking (VPC, subnets, NAT gateway, security groups, VPC endpoints, KMS keys, S3 archive/backup/coredump buckets)
+Networking (VPC, subnets, NAT gateway, security groups, VPC endpoints, KMS keys, S3 archive/backup buckets, and `vespa-coredump-*` memory-dump buckets)
 is created per-zone via the `modules/zone` submodule after the root module has been applied.
 
 ## Requirements
@@ -154,9 +154,9 @@ See complete working examples in `examples/`.
 
 - `vespa_host_role` (string): The AWS role assigned to Vespa Cloud hosts.
 
-- `support_data_read_role_arn` (string): ARN of the customer support-data read role, or `null` when access is disabled.
+- `support_data_read_role_arn` (string): ARN of the customer role that reads encrypted heap dumps and native core dumps, or `null` when access is disabled.
 
-- `support_data_read_trusted_principal_arn` (string): ARN of the tenant-specific Vespa Cloud role trusted for support-data access, or `null` when access is disabled.
+- `support_data_read_trusted_principal_arn` (string): ARN of the tenant-specific Vespa Cloud role trusted to read encrypted heap dumps and native core dumps, or `null` when access is disabled.
 
 ## Providers
 - hashicorp/aws
@@ -187,8 +187,9 @@ This module follows semantic versioning. Pin a compatible version range when con
 ### Upgrading support-data access from v1
 
 Version 2 replaces the standalone `modules/coredump-access` module and its
-`vespa-coredump-read` IAM resources. Access is now configured through the root
-module's `support_data_access_expires_at` input, which creates the renamed
+`vespa-coredump-read` IAM resources. Read access to encrypted heap dumps and
+native core dumps is now configured through the root module's
+`support_data_access_expires_at` input, which creates the renamed
 `vespa-support-data-read` IAM resources.
 
 If your last apply of the standalone `coredump-access` module had

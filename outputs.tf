@@ -35,7 +35,7 @@ output "vespa_host_role" {
 }
 
 output "support_data_read_role_arn" {
-  description = "ARN of the customer support-data read role, or null when no access is granted"
+  description = "ARN of the customer role that reads encrypted heap dumps and native core dumps, or null when no access is granted"
   value       = module.support_data_access.role_arn
 
   precondition {
@@ -45,6 +45,6 @@ output "support_data_read_role_arn" {
 }
 
 output "support_data_read_trusted_principal_arn" {
-  description = "ARN of the tenant-specific Vespa Cloud role trusted for support-data access, or null when no access is granted"
+  description = "ARN of the tenant-specific Vespa Cloud role trusted to read encrypted heap dumps and native core dumps, or null when no access is granted"
   value       = module.support_data_access.trusted_principal_arn
 }

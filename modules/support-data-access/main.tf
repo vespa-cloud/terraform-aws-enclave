@@ -13,9 +13,10 @@ locals {
   enabled = var.support_data_access_expires_at == null ? 0 : 1
 }
 
-# Role assumed by Vespa Cloud debug instances to read encrypted support data
-# from the core dump buckets in this account. All access is automatically
-# denied after the expiry time given in var.support_data_access_expires_at.
+# Role assumed by Vespa Cloud debug instances to read encrypted heap dumps and
+# native core dumps from the existing vespa-coredump-* buckets in this account.
+# All access is automatically denied after the expiry time given in
+# var.support_data_access_expires_at.
 #
 # The trust policy uses the debug account root as principal with an
 # aws:PrincipalArn condition instead of naming the role directly. IAM
@@ -80,7 +81,7 @@ resource "aws_iam_policy" "support_data_read" {
           }
         }
       },
-      { # Allow S3 to decrypt core dump bucket objects (SSE-KMS) on read
+      { # Allow S3 to decrypt dump objects (SSE-KMS) on read
         Effect = "Allow"
         Action = [
           "kms:Decrypt",

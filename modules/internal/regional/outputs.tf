@@ -50,5 +50,6 @@ output "archive_bucket" {
 }
 
 output "coredump_bucket" {
-  value = module.coredump.bucket
+  description = "Name of the bucket for encrypted heap dumps and native core dumps"
+  value       = module.coredump.bucket
 }

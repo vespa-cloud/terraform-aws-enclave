@@ -1,3 +1,6 @@
+# This module stores both heap dumps and native core dumps.
+# We retain the coredump naming to preserve existing storage resources,
+# upload configuration, and access policies.
 
 terraform {
   required_providers {
@@ -9,9 +12,9 @@ terraform {
 
 data "aws_caller_identity" "current" {}
 
-# The bucket name is deterministic (no random suffix) so the core dump upload
-# feature flag can be configured with the exact name. Uniqueness is guaranteed
-# by the account id (globally unique) and zone.name (environment + region).
+# The bucket name is deterministic (no random suffix) so the dump upload
+# configuration can use the exact name. Uniqueness is guaranteed by the account
+# id (globally unique) and zone.name (environment + region).
 resource "aws_s3_bucket" "coredump" {
   bucket = "vespa-coredump-${data.aws_caller_identity.current.account_id}-${var.zone.name}"
   tags = {
@@ -116,7 +119,7 @@ data "aws_iam_policy_document" "coredump" {
   }
 
   # Defense-in-depth for RS12: only compressed+encrypted dumps (.zst.enc) and
-  # metadata files (.json) can be written. Raw (unencrypted) core files are
+  # metadata files (.json) can be written. Raw (unencrypted) dump files are
   # rejected even if the upload-side filtering in host-admin fails.
   statement {
     sid = "EncryptedDumpsOnly"

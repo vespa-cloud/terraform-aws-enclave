@@ -49,5 +49,6 @@ output "availability_zone_name" {
   value = module.zonal.availability_zone_names[0]
 }
 output "coredump_bucket" {
-  value = module.regional.coredump_bucket
+  description = "Name of the per-zone bucket for encrypted heap dumps and native core dumps"
+  value       = module.regional.coredump_bucket
 }

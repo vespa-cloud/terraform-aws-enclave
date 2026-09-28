@@ -1,5 +1,5 @@
 # Contract tests for the internal child module. These pin the IAM names,
-# trusted principal, deadline, and unchanged storage scope used by the root.
+# trusted principal, deadline, and dump-only storage scope used by the root.
 
 mock_provider "aws" {
   mock_resource "aws_iam_role" {
@@ -73,7 +73,7 @@ run "enabled_tenant_role" {
 
   assert {
     condition     = jsondecode(aws_iam_policy.support_data_read[0].policy).Statement[0].Resource == ["arn:aws:s3:::vespa-coredump-*"]
-    error_message = "the S3 permissions should remain scoped to core-dump buckets"
+    error_message = "the S3 permissions should remain scoped to vespa-coredump-* dump buckets"
   }
 
   assert {
@@ -83,7 +83,7 @@ run "enabled_tenant_role" {
 
   assert {
     condition     = jsondecode(aws_iam_policy.support_data_read[0].policy).Statement[1].Condition["ForAnyValue:StringLike"]["kms:ResourceAliases"] == "alias/vespa-coredump-key-*"
-    error_message = "the KMS permissions should remain scoped to core-dump key aliases"
+    error_message = "the KMS permissions should remain scoped to vespa-coredump-key-* aliases"
   }
 
   assert {

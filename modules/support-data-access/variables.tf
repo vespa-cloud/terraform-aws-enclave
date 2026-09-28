@@ -1,5 +1,5 @@
 variable "support_data_access_expires_at" {
-  description = "RFC 3339 UTC timestamp when support-data read access expires, e.g. 2026-07-01T00:00:00Z. All access granted by this module is automatically denied after this time. Leave unset (null) to grant no access at all."
+  description = "RFC 3339 UTC timestamp when read access to encrypted heap dumps and native core dumps expires, e.g. 2026-07-01T00:00:00Z. All access granted by this module is automatically denied after this time. Leave unset (null) to grant no access at all."
   type        = string
   default     = null
   nullable    = true
