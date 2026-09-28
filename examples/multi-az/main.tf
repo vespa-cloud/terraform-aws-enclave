@@ -12,7 +12,7 @@ provider "aws" {
 #
 module "enclave" {
   source      = "vespa-cloud/enclave/aws"
-  version     = ">= 1.0.0, < 2.0.0"
+  version     = "~> 2.0"
   tenant_name = "<YOUR-TENANT-HERE>"
 }
 
@@ -24,7 +24,7 @@ module "enclave" {
 #
 module "zone_prod_us_east_1" {
   source  = "vespa-cloud/enclave/aws//modules/zone_multi_az"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.prod.aws_us_east_1
 
   azs             = ["use1-az1", "use1-az5"]

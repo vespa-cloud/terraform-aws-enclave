@@ -88,10 +88,142 @@ run "root_module" {
     condition     = length(output.zones.prod.aws_us_east_1.configserver_az) >= 2
     error_message = "multi-AZ zone should carry multiple configserver AZs"
   }
+
+  assert {
+    condition     = output.support_data_read_role_arn == null && output.support_data_read_trusted_principal_arn == null
+    error_message = "omitting support_data_access_expires_at should create no support-data access role"
+  }
+}
+
+run "root_access_production" {
+  command = apply
+
+  variables {
+    tenant_name                    = "acme"
+    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+  }
+
+  assert {
+    condition     = output.support_data_read_trusted_principal_arn == "arn:aws:iam::061361823659:role/vespa-debug.acme"
+    error_message = "production support-data access should trust the tenant-specific production role"
+  }
+
+  assert {
+    condition     = output.support_data_read_role_arn != null
+    error_message = "a non-null access deadline should create the support-data access role"
+  }
+}
+
+run "root_access_revoked" {
+  command = apply
+
+  variables {
+    tenant_name                    = "acme"
+    support_data_access_expires_at = null
+  }
+
+  assert {
+    condition     = output.support_data_read_role_arn == null && output.support_data_read_trusted_principal_arn == null
+    error_message = "revoking root consent should destroy the support-data access role"
+  }
+}
+
+run "production_debug_identity_boundary" {
+  command = plan
+
+  # The existing provision module has a separate, tighter role-name limit.
+  # Override it here to test only the approved debug identity boundary.
+  override_module {
+    target = module.provision
+  }
+
+  variables {
+    tenant_name                    = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+  }
+
+  assert {
+    condition     = output.support_data_read_trusted_principal_arn == "arn:aws:iam::061361823659:role/vespa-debug.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    error_message = "production support-data access should support a 52-character tenant name"
+  }
+}
+
+run "public_cd_debug_identity_boundary" {
+  command = plan
+
+  # The existing provision module has a separate, tighter role-name limit.
+  # Override it here to test only the approved debug identity boundary.
+  override_module {
+    target = module.provision
+  }
+
+  variables {
+    tenant_name                    = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    vespa_cloud_account            = "786426250597"
+    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+  }
+
+  assert {
+    condition     = output.support_data_read_trusted_principal_arn == "arn:aws:iam::061361823659:role/vespa-debug-cd.aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    error_message = "public CD support-data access should trust the tenant-specific public CD role"
+  }
+
+  assert {
+    condition     = length(local.debug_identity_name) == 64
+    error_message = "the longest supported public CD identity should fit the IAM role-name limit"
+  }
+}
+
+run "unsupported_vespa_cloud_account" {
+  command = plan
+
+  variables {
+    tenant_name         = "acme"
+    vespa_cloud_account = "123456789012"
+  }
+
+  expect_failures = [
+    var.vespa_cloud_account,
+  ]
+}
+
+run "production_tenant_name_too_long_for_debug_role" {
+  command = plan
+
+  override_module {
+    target = module.provision
+  }
+
+  variables {
+    tenant_name                    = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+  }
+
+  expect_failures = [
+    output.support_data_read_role_arn,
+  ]
+}
+
+run "public_cd_tenant_name_too_long_for_debug_role" {
+  command = plan
+
+  override_module {
+    target = module.provision
+  }
+
+  variables {
+    tenant_name                    = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    vespa_cloud_account            = "786426250597"
+    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+  }
+
+  expect_failures = [
+    output.support_data_read_role_arn,
+  ]
 }
 
 # Plan the full customer-shaped composition (root + zone + zone_multi_az +
-# ssh + coredump-access) against the local code.
+# ssh + support-data access) against the local code.
 run "full_composition" {
   command = plan
 

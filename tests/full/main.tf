@@ -2,10 +2,19 @@
 # mirroring the integration-test template, but with relative sources so the
 # local (unreleased) code is what gets planned.
 
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+    }
+  }
+}
+
 module "enclave" {
-  source              = "../.."
-  vespa_cloud_account = "786426250597"
-  tenant_name         = "vespa"
+  source                         = "../.."
+  vespa_cloud_account            = "786426250597"
+  tenant_name                    = "vespa"
+  support_data_access_expires_at = "2028-01-01T00:00:00Z"
 }
 
 module "zone" {
@@ -29,11 +38,6 @@ module "zone_multi_az" {
 module "ssh" {
   source              = "../../modules/ssh"
   vespa_cloud_account = module.enclave.vespa_cloud_account
-}
-
-module "coredump_access" {
-  source                 = "../../modules/coredump-access"
-  read_access_expires_at = "2028-01-01T00:00:00Z"
 }
 
 output "zones" {

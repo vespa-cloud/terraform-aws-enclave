@@ -62,8 +62,13 @@ provider "aws" {
 # Bootstrap your account for Vespa Cloud
 module "enclave" {
   source      = "vespa-cloud/enclave/aws"
-  version     = ">= 1.0.0, < 2.0.0"
+  version     = "~> 2.0"
   tenant_name = "<YOUR-VESPA-TENANT-NAME>"
+
+  # Grant Vespa Cloud support limited-time read access to encrypted heap dumps
+  # and native core dumps.
+  # support_data_access_expires_at = "2026-10-01T00:00:00Z"
+
   providers = {
     aws = aws.us_east_1
   }
@@ -72,7 +77,7 @@ module "enclave" {
 # Dev zone for manual development deployments
 module "zone_dev_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.dev.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -83,7 +88,7 @@ module "zone_dev_us_east_1c" {
 # before changes can be promoted to prod.
 module "zone_test_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.test.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -92,7 +97,7 @@ module "zone_test_us_east_1c" {
 
 module "zone_staging_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.staging.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -102,7 +107,7 @@ module "zone_staging_us_east_1c" {
 # Production zones (add as many as you need)
 module "zone_prod_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.prod.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -115,7 +120,7 @@ module "zone_prod_us_east_1c" {
 
 module "zone_prod_us_west_2a" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.prod.aws_us_west_2a
   providers = {
     aws = aws.us_west_2
@@ -132,6 +137,8 @@ See complete working examples in `examples/`.
 ## Inputs
 - `tenant_name` (string, required): The Vespa Cloud tenant name that will operate in this account.
 - `default_region` (string, optional, default `"us-east-1"`): Region to default to when resources don't need to be in a specific region.
+- `vespa_cloud_account` (string, optional, defaults to the public production system): Vespa Cloud AWS account.
+- `support_data_access_expires_at` (string, optional, default `null`): RFC 3339 UTC deadline for Vespa Cloud read access to encrypted heap dumps and native core dumps. Omitting it creates no access resources.
 
 ## Outputs
 - `zones` (map): Map of available Vespa Cloud zones grouped by environment. Keys are referenced as
@@ -146,6 +153,10 @@ See complete working examples in `examples/`.
 - `vespa_cloud_account` (string): The Vespa Cloud AWS account used to manage enclave accounts.
 
 - `vespa_host_role` (string): The AWS role assigned to Vespa Cloud hosts.
+
+- `support_data_read_role_arn` (string): ARN of the customer support-data read role, or `null` when access is disabled.
+
+- `support_data_read_trusted_principal_arn` (string): ARN of the tenant-specific Vespa Cloud role trusted for support-data access, or `null` when access is disabled.
 
 ## Providers
 - hashicorp/aws
@@ -171,7 +182,34 @@ Option B (least-privilege):
 
 ## Versioning
 This module follows semantic versioning. Pin a compatible version range when consuming the module, for example:
-`>= 1.0.0, < 2.0.0`.
+`~> 2.0`.
+
+### Upgrading support-data access from v1
+
+Version 2 replaces the standalone `modules/coredump-access` module and its
+`vespa-coredump-read` IAM resources. Access is now configured through the root
+module's `support_data_access_expires_at` input, which creates the renamed
+`vespa-support-data-read` IAM resources.
+
+If your last apply of the standalone `coredump-access` module had
+`read_access_expires_at` unset or `null`, your Terraform state contains no IAM
+resources from it. Remove the module block when you upgrade to v2. No other
+migration is needed.
+
+If your last apply used a non-null `read_access_expires_at`, including an
+expired timestamp, your Terraform state contains IAM resources created by the
+standalone module. In the same configuration change:
+
+1. Remove the standalone `coredump-access` module block.
+2. Upgrade the root module to v2 and set `support_data_access_expires_at` to the desired deadline, or leave it `null` to revoke access.
+
+Apply the combined change once. Terraform can remove the legacy IAM resources
+and create the v2 resources in the same apply because their AWS names differ.
+The old module path is not available in v2.
+
+Version 2 also types `vespa_cloud_account` as a string and validates that it is
+a supported public-system account ID. Callers using another value must update
+it before upgrading.
 
 ## Examples
 - Basic: `./examples/basic`

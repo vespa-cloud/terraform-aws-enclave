@@ -12,7 +12,25 @@ variable "tenant_name" {
 
 variable "vespa_cloud_account" {
   description = "The account the Vespa Cloud provisioner resides in"
+  type        = string
   default     = "332934501266"
+
+  validation {
+    condition     = contains(["332934501266", "786426250597"], var.vespa_cloud_account)
+    error_message = "The Vespa Cloud account must identify public production (332934501266) or public CD (786426250597)."
+  }
+}
+
+variable "support_data_access_expires_at" {
+  description = "RFC 3339 UTC timestamp when Vespa Cloud support-data read access for heap dumps and native core dumps expires. Leave null to grant no access."
+  type        = string
+  default     = null
+  nullable    = true
+
+  validation {
+    condition     = var.support_data_access_expires_at == null || can(formatdate("YYYY", var.support_data_access_expires_at)) && can(regex("Z$", var.support_data_access_expires_at))
+    error_message = "Must be an RFC 3339 UTC timestamp ending in Z, e.g. 2026-07-01T00:00:00Z."
+  }
 }
 
 variable "all_zones" {
