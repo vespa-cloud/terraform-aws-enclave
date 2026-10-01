@@ -32,6 +32,6 @@ module "provision" {
 module "support_data_access" {
   source = "./modules/support-data-access"
 
-  debug_instance_role_arn        = local.debug_instance_role_arn
-  support_data_access_expires_at = var.support_data_access_expires_at
+  debug_instance_role_arn           = local.debug_instance_role_arn
+  support_data_access_allowed_until = var.support_data_access_allowed_until
 }

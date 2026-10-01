@@ -11,10 +11,10 @@ terraform {
 }
 
 module "enclave" {
-  source                         = "../.."
-  vespa_cloud_account            = "786426250597"
-  tenant_name                    = "vespa"
-  support_data_access_expires_at = "2028-01-01T00:00:00Z"
+  source                            = "../.."
+  vespa_cloud_account               = "786426250597"
+  tenant_name                       = "vespa"
+  support_data_access_allowed_until = "2028-01-01T00:00:00Z"
 }
 
 module "zone" {

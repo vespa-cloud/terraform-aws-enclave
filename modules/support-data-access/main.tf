@@ -10,13 +10,13 @@ locals {
   debug_account_id = split(":", var.debug_instance_role_arn)[4]
   # Grant access only when an expiry time is set. Unset (null) creates no
   # IAM resources, so customers can keep the root input present but inert.
-  enabled = var.support_data_access_expires_at == null ? 0 : 1
+  enabled = var.support_data_access_allowed_until == null ? 0 : 1
 }
 
 # Role assumed by Vespa Cloud debug instances to read encrypted heap dumps and
 # native core dumps from the existing vespa-coredump-* buckets in this account.
 # All access is automatically denied after the expiry time given in
-# var.support_data_access_expires_at.
+# var.support_data_access_allowed_until.
 #
 # The trust policy uses the debug account root as principal with an
 # aws:PrincipalArn condition instead of naming the role directly. IAM
@@ -40,7 +40,7 @@ resource "aws_iam_role" "support_data_read" {
             "aws:PrincipalArn" = var.debug_instance_role_arn
           }
           DateLessThan = {
-            "aws:CurrentTime" = var.support_data_access_expires_at
+            "aws:CurrentTime" = var.support_data_access_allowed_until
           }
         }
       }
@@ -77,7 +77,7 @@ resource "aws_iam_policy" "support_data_read" {
         ]
         Condition = {
           DateLessThan = {
-            "aws:CurrentTime" = var.support_data_access_expires_at
+            "aws:CurrentTime" = var.support_data_access_allowed_until
           }
         }
       },
@@ -96,7 +96,7 @@ resource "aws_iam_policy" "support_data_read" {
             "kms:ResourceAliases" = "alias/vespa-coredump-key-*"
           }
           DateLessThan = {
-            "aws:CurrentTime" = var.support_data_access_expires_at
+            "aws:CurrentTime" = var.support_data_access_allowed_until
           }
         }
       }

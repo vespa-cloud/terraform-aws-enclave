@@ -22,8 +22,8 @@ run "enabled_tenant_role" {
   }
 
   variables {
-    debug_instance_role_arn        = "arn:aws:iam::061361823659:role/vespa-debug-cd.vespa"
-    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+    debug_instance_role_arn           = "arn:aws:iam::061361823659:role/vespa-debug-cd.vespa"
+    support_data_access_allowed_until = "2028-01-01T00:00:00Z"
   }
 
   assert {
@@ -100,8 +100,8 @@ run "expired_deadline_keeps_resources" {
   }
 
   variables {
-    debug_instance_role_arn        = "arn:aws:iam::061361823659:role/vespa-debug.acme"
-    support_data_access_expires_at = "2020-01-01T00:00:00Z"
+    debug_instance_role_arn           = "arn:aws:iam::061361823659:role/vespa-debug.acme"
+    support_data_access_allowed_until = "2020-01-01T00:00:00Z"
   }
 
   assert {
@@ -123,8 +123,8 @@ run "disabled_access" {
   }
 
   variables {
-    debug_instance_role_arn        = "arn:aws:iam::061361823659:role/vespa-debug.acme"
-    support_data_access_expires_at = null
+    debug_instance_role_arn           = "arn:aws:iam::061361823659:role/vespa-debug.acme"
+    support_data_access_allowed_until = null
   }
 
   assert {
@@ -141,8 +141,8 @@ run "internal_module_requires_role_arn" {
   }
 
   variables {
-    debug_instance_role_arn        = null
-    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+    debug_instance_role_arn           = null
+    support_data_access_allowed_until = "2028-01-01T00:00:00Z"
   }
 
   expect_failures = [

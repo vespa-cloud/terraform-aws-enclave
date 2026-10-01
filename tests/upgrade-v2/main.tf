@@ -8,7 +8,7 @@ terraform {
   }
 }
 
-variable "support_data_access_expires_at" {
+variable "support_data_access_allowed_until" {
   type    = string
   default = null
 }
@@ -16,9 +16,9 @@ variable "support_data_access_expires_at" {
 module "enclave" {
   source = "../.."
 
-  tenant_name                    = "vespa"
-  vespa_cloud_account            = "786426250597"
-  support_data_access_expires_at = var.support_data_access_expires_at
+  tenant_name                       = "vespa"
+  vespa_cloud_account               = "786426250597"
+  support_data_access_allowed_until = var.support_data_access_allowed_until
 }
 
 output "role_arn" {

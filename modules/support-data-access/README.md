@@ -2,7 +2,7 @@
 
 This internal module implements the time-limited IAM resources used by the root
 Vespa Cloud Enclave module. Configure access through the root module's
-`support_data_access_expires_at` input instead of instantiating this module
+`support_data_access_allowed_until` input instead of instantiating this module
 directly.
 
 Set the root input only when you explicitly wish to grant Vespa Cloud support

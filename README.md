@@ -67,7 +67,7 @@ module "enclave" {
 
   # Grant Vespa Cloud support limited-time read access to encrypted heap dumps
   # and native core dumps.
-  # support_data_access_expires_at = "2026-10-01T00:00:00Z"
+  # support_data_access_allowed_until = "2026-10-01T00:00:00Z"
 
   providers = {
     aws = aws.us_east_1
@@ -138,7 +138,7 @@ See complete working examples in `examples/`.
 - `tenant_name` (string, required): The Vespa Cloud tenant name that will operate in this account.
 - `default_region` (string, optional, default `"us-east-1"`): Region to default to when resources don't need to be in a specific region.
 - `vespa_cloud_account` (string, optional, defaults to the public production system): Vespa Cloud AWS account.
-- `support_data_access_expires_at` (string, optional, default `null`): RFC 3339 UTC deadline for Vespa Cloud read access to encrypted heap dumps and native core dumps. Omitting it creates no access resources.
+- `support_data_access_allowed_until` (string, optional, default `null`): RFC 3339 UTC timestamp until which Vespa Cloud may read encrypted heap dumps and native core dumps. Omitting it creates no access resources.
 
 ## Outputs
 - `zones` (map): Map of available Vespa Cloud zones grouped by environment. Keys are referenced as
@@ -189,7 +189,7 @@ This module follows semantic versioning. Pin a compatible version range when con
 Version 2 replaces the standalone `modules/coredump-access` module and its
 `vespa-coredump-read` IAM resources. Read access to encrypted heap dumps and
 native core dumps is now configured through the root module's
-`support_data_access_expires_at` input, which creates the renamed
+`support_data_access_allowed_until` input, which creates the renamed
 `vespa-support-data-read` IAM resources.
 
 If your last apply of the standalone `coredump-access` module had
@@ -202,7 +202,7 @@ expired timestamp, your Terraform state contains IAM resources created by the
 standalone module. In the same configuration change:
 
 1. Remove the standalone `coredump-access` module block.
-2. Upgrade the root module to v2 and set `support_data_access_expires_at` to the desired deadline, or leave it `null` to revoke access.
+2. Upgrade the root module to v2 and set `support_data_access_allowed_until` to the desired deadline, or leave it `null` to revoke access.
 
 Apply the combined change once. Terraform can remove the legacy IAM resources
 and create the v2 resources in the same apply because their AWS names differ.

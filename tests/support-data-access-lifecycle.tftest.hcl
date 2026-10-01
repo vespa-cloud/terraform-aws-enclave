@@ -22,8 +22,8 @@ run "enable_access" {
   }
 
   variables {
-    debug_instance_role_arn        = "arn:aws:iam::061361823659:role/vespa-debug.acme"
-    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+    debug_instance_role_arn           = "arn:aws:iam::061361823659:role/vespa-debug.acme"
+    support_data_access_allowed_until = "2028-01-01T00:00:00Z"
   }
 
   assert {
@@ -40,8 +40,8 @@ run "disable_access" {
   }
 
   variables {
-    debug_instance_role_arn        = "arn:aws:iam::061361823659:role/vespa-debug.acme"
-    support_data_access_expires_at = null
+    debug_instance_role_arn           = "arn:aws:iam::061361823659:role/vespa-debug.acme"
+    support_data_access_allowed_until = null
   }
 
   assert {

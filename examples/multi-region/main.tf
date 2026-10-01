@@ -38,7 +38,7 @@ module "enclave" {
 
   # Set this when Vespa Cloud support asks for read access to encrypted heap
   # dumps or native core dumps.
-  # support_data_access_expires_at = "2026-10-01T00:00:00Z"
+  # support_data_access_allowed_until = "2026-10-01T00:00:00Z"
 
   providers = {
     aws = aws.us_east_1

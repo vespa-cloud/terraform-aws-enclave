@@ -91,7 +91,7 @@ run "root_module" {
 
   assert {
     condition     = output.support_data_read_role_arn == null && output.support_data_read_trusted_principal_arn == null
-    error_message = "omitting support_data_access_expires_at should create no support-data access role"
+    error_message = "omitting support_data_access_allowed_until should create no support-data access role"
   }
 }
 
@@ -99,8 +99,8 @@ run "root_access_production" {
   command = apply
 
   variables {
-    tenant_name                    = "acme"
-    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+    tenant_name                       = "acme"
+    support_data_access_allowed_until = "2028-01-01T00:00:00Z"
   }
 
   assert {
@@ -118,8 +118,8 @@ run "root_access_revoked" {
   command = apply
 
   variables {
-    tenant_name                    = "acme"
-    support_data_access_expires_at = null
+    tenant_name                       = "acme"
+    support_data_access_allowed_until = null
   }
 
   assert {
@@ -138,8 +138,8 @@ run "production_debug_identity_boundary" {
   }
 
   variables {
-    tenant_name                    = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+    tenant_name                       = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    support_data_access_allowed_until = "2028-01-01T00:00:00Z"
   }
 
   assert {
@@ -158,9 +158,9 @@ run "public_cd_debug_identity_boundary" {
   }
 
   variables {
-    tenant_name                    = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    vespa_cloud_account            = "786426250597"
-    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+    tenant_name                       = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    vespa_cloud_account               = "786426250597"
+    support_data_access_allowed_until = "2028-01-01T00:00:00Z"
   }
 
   assert {
@@ -195,8 +195,8 @@ run "production_tenant_name_too_long_for_debug_role" {
   }
 
   variables {
-    tenant_name                    = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+    tenant_name                       = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    support_data_access_allowed_until = "2028-01-01T00:00:00Z"
   }
 
   expect_failures = [
@@ -212,9 +212,9 @@ run "public_cd_tenant_name_too_long_for_debug_role" {
   }
 
   variables {
-    tenant_name                    = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
-    vespa_cloud_account            = "786426250597"
-    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+    tenant_name                       = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    vespa_cloud_account               = "786426250597"
+    support_data_access_allowed_until = "2028-01-01T00:00:00Z"
   }
 
   expect_failures = [

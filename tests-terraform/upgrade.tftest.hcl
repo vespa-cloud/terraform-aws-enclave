@@ -54,7 +54,7 @@ run "enabled_v2" {
   }
 
   variables {
-    support_data_access_expires_at = "2028-01-01T00:00:00Z"
+    support_data_access_allowed_until = "2028-01-01T00:00:00Z"
   }
 
   assert {
@@ -95,7 +95,7 @@ run "expired_v2" {
   }
 
   variables {
-    support_data_access_expires_at = "2020-01-01T00:00:00Z"
+    support_data_access_allowed_until = "2020-01-01T00:00:00Z"
   }
 
   assert {
@@ -131,7 +131,7 @@ run "disabled_v2" {
   }
 
   variables {
-    support_data_access_expires_at = null
+    support_data_access_allowed_until = null
   }
 
   assert {

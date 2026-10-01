@@ -5,5 +5,5 @@ output "role_arn" {
 
 output "trusted_principal_arn" {
   description = "ARN trusted to assume the dump-read role, or null when no access is granted"
-  value       = var.support_data_access_expires_at == null ? null : var.debug_instance_role_arn
+  value       = var.support_data_access_allowed_until == null ? null : var.debug_instance_role_arn
 }
