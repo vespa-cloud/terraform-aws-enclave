@@ -38,6 +38,7 @@ variable "all_zones" {
     { environment = "prod", region = "aws-us-west-2a", tag = "prod.aws-usw-2a" },
     { environment = "prod", region = "aws-eu-west-1a", tag = "prod.aws-euw-1a" },
     { environment = "prod", region = "aws-eu-west-1", tag = "prod.aws-eu-west-1", configserver_az = ["euw1-az1", "euw1-az2", "euw1-az3"] },
+    { environment = "prod", region = "aws-eu-west-2", tag = "prod.aws-eu-west-2", configserver_az = ["euw2-az1", "euw2-az2", "euw2-az3"] },
     { environment = "prod", region = "aws-ap-northeast-1a", tag = "prod.aws-apne-1a" },
     { environment = "prod", region = "aws-euw1-az1", tag = "prod.aws-euw1-az1" },
     { environment = "prod", region = "aws-euc1-az1", tag = "prod.aws-euc1-az1" },
