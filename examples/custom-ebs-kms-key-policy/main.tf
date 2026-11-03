@@ -13,7 +13,7 @@ provider "aws" {
 #
 module "enclave" {
   source      = "vespa-cloud/enclave/aws"
-  version     = ">= 1.0.0, < 2.0.0"
+  version     = "~> 2.0"
   tenant_name = "<YOUR-TENANT-HERE>"
 }
 
@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "ebs_kms_key_extra" {
 #
 module "zone_dev_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.dev.aws_us_east_1c
 
   custom_ebs_kms_key_policy = data.aws_iam_policy_document.ebs_kms_key_extra.json

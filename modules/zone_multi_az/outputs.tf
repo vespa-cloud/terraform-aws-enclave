@@ -18,7 +18,8 @@ output "archive_bucket" {
   value = module.regional.archive_bucket
 }
 output "coredump_bucket" {
-  value = module.regional.coredump_bucket
+  description = "Name of the per-zone bucket for encrypted heap dumps and native core dumps"
+  value       = module.regional.coredump_bucket
 }
 output "hosts_cidr_block" {
   value = module.zonal.hosts_cidr_blocks[0]

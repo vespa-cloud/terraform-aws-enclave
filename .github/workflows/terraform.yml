@@ -22,6 +22,30 @@ jobs:
         run: tofu init -backend=false
       - name: Validate
         run: tofu validate
+  terraform-migration-test:
+    name: "Terraform migration test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+      - name: Initialize migration tests
+        run: terraform init -backend=false -test-directory=tests-terraform
+      - name: Test v1-to-v2 migration
+        run: terraform test -test-directory=tests-terraform
+      - name: Verify removed v1 module path
+        working-directory: tests/removed-coredump-access
+        run: |
+          if output=$(terraform init -backend=false -no-color 2>&1); then
+            echo "Expected initialization to reject the removed v1 module path."
+            exit 1
+          fi
+          printf '%s\n' "$output"
+          if [[ "$output" != *"Unreadable module directory"* ]]; then
+            echo "Initialization failed for an unexpected reason."
+            exit 1
+          fi
   checkov:
     name: "Checkov"
     runs-on: ubuntu-latest
