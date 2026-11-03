@@ -30,8 +30,21 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v4
+      - name: Install Terraform
+        env:
+          TERRAFORM_VERSION: "1.15.5"
+          TERRAFORM_SHA256: "702b2136af6728c8ff037f843dd2dbce2b7ad88786b7381d1d72aefa250f601c"
+        run: |
+          terraform_archive="${RUNNER_TEMP}/terraform.zip"
+          terraform_bin_dir="${RUNNER_TEMP}/terraform-bin"
+          curl --fail --silent --show-error --location \
+            --proto '=https' --tlsv1.2 \
+            "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
+            --output "${terraform_archive}"
+          echo "${TERRAFORM_SHA256}  ${terraform_archive}" | sha256sum --check
+          mkdir -p "${terraform_bin_dir}"
+          unzip -q "${terraform_archive}" -d "${terraform_bin_dir}"
+          echo "${terraform_bin_dir}" >> "${GITHUB_PATH}"
       - name: Initialize migration tests
         run: terraform init -backend=false -test-directory=tests-terraform
       - name: Test v1-to-v2 migration
