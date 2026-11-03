@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
   pull_request:
 
+permissions: read-all
+
 jobs:
   terraform:
     name: "Terraform"
@@ -22,6 +24,43 @@ jobs:
         run: tofu init -backend=false
       - name: Validate
         run: tofu validate
+  terraform-migration-test:
+    name: "Terraform migration test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Install Terraform
+        env:
+          TERRAFORM_VERSION: "1.15.5"
+          TERRAFORM_SHA256: "702b2136af6728c8ff037f843dd2dbce2b7ad88786b7381d1d72aefa250f601c"
+        run: |
+          terraform_archive="${RUNNER_TEMP}/terraform.zip"
+          terraform_bin_dir="${RUNNER_TEMP}/terraform-bin"
+          curl --fail --silent --show-error --location \
+            --proto '=https' --tlsv1.2 \
+            "https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip" \
+            --output "${terraform_archive}"
+          echo "${TERRAFORM_SHA256}  ${terraform_archive}" | sha256sum --check
+          mkdir -p "${terraform_bin_dir}"
+          unzip -q "${terraform_archive}" -d "${terraform_bin_dir}"
+          echo "${terraform_bin_dir}" >> "${GITHUB_PATH}"
+      - name: Initialize migration tests
+        run: terraform init -backend=false -test-directory=tests-terraform
+      - name: Test v1-to-v2 migration
+        run: terraform test -test-directory=tests-terraform
+      - name: Verify removed v1 module path
+        working-directory: tests/removed-coredump-access
+        run: |
+          if output=$(terraform init -backend=false -no-color 2>&1); then
+            echo "Expected initialization to reject the removed v1 module path."
+            exit 1
+          fi
+          printf '%s\n' "$output"
+          if [[ "$output" != *"Unreadable module directory"* ]]; then
+            echo "Initialization failed for an unexpected reason."
+            exit 1
+          fi
   checkov:
     name: "Checkov"
     runs-on: ubuntu-latest

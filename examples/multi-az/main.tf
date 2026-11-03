@@ -11,8 +11,9 @@ provider "aws" {
 # provision Vespa Cloud resources inside the AWS account.
 #
 module "enclave" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source      = "vespa-cloud/enclave/aws"
-  version     = ">= 1.0.0, < 2.0.0"
+  version     = "~> 2.0"
   tenant_name = "<YOUR-TENANT-HERE>"
 }
 
@@ -23,8 +24,9 @@ module "enclave" {
 # Do not change primary_zone_az after apply; it forces VPC replacement.
 #
 module "zone_prod_us_east_1" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone_multi_az"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.prod.aws_us_east_1
 
   azs             = ["use1-az1", "use1-az5"]

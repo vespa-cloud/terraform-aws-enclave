@@ -5,6 +5,8 @@ on:
     types: [opened, synchronize, reopened, labeled, unlabeled]
     branches: [main]
 
+permissions: read-all
+
 jobs:
   version-check:
     uses: vespa-engine/gh-actions/.github/workflows/tf-version-check.yml@main

@@ -291,7 +291,7 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
         ]
         Resource = "arn:aws:s3:::vespa-archive-*"
       },
-      { # Allow hosts to upload encrypted core dumps to their core dump bucket
+      { # Allow hosts to upload encrypted memory dumps to their dump bucket
         Effect = "Allow"
         Action = [
           "s3:PutObject",
@@ -309,9 +309,9 @@ resource "aws_iam_policy" "vespa_cloud_host_policy" {
           }
         }
       },
-      { # Allow hosts to upload core dumps with SSE-KMS. Multipart uploads (any dump > a few MB)
+      { # Allow hosts to upload memory dumps with SSE-KMS. Multipart uploads (any dump > a few MB)
         # require kms:Decrypt in addition to kms:GenerateDataKey. This grants no data read
-        # access: hosts have no s3:GetObject on the core dump buckets.
+        # access: hosts have no s3:GetObject on the dump buckets.
         Effect = "Allow"
         Action = [
           "kms:Decrypt",

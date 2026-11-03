@@ -32,9 +32,15 @@ provider "aws" {
 # provision Vespa Cloud resources inside the AWS account.
 #
 module "enclave" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source      = "vespa-cloud/enclave/aws"
-  version     = ">= 1.0.0, < 2.0.0"
+  version     = "~> 2.0"
   tenant_name = "<YOUR-TENANT-HERE>"
+
+  # Set this when Vespa Cloud support asks for read access to encrypted heap
+  # dumps or native core dumps.
+  # support_data_access_allowed_until = "2026-10-01T00:00:00Z"
+
   providers = {
     aws = aws.us_east_1
   }
@@ -52,21 +58,6 @@ module "enclave" {
 # }
 
 #
-# Grant the Vespa team time-limited, read-only access to encrypted core dumps.
-# Keep this block as-is to grant no access. When Vespa Cloud support asks for
-# access, set read_access_expires_at to a future UTC timestamp and apply; unset
-# it again to revoke.
-#
-module "coredump_access" {
-  source  = "vespa-cloud/enclave/aws//modules/coredump-access"
-  version = ">= 1.8.0, < 2.0.0"
-  # read_access_expires_at = "2026-07-01T00:00:00Z"
-  providers = {
-    aws = aws.us_east_1
-  }
-}
-
-#
 # Set up the VPC that will contain the Enclaved Vespa appplication.
 #
 
@@ -74,8 +65,9 @@ module "coredump_access" {
 # Set up the VPC that contains the Enclaved Vespa appplication's dev and perf zones.
 #
 module "zone_dev_us_east_1c" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.dev.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -87,8 +79,9 @@ module "zone_dev_us_east_1c" {
 # pipline that Vespa Cloud supports.
 #
 module "zone_test_us_east_1c" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.test.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -96,8 +89,9 @@ module "zone_test_us_east_1c" {
 }
 
 module "zone_staging_us_east_1c" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.staging.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -108,8 +102,9 @@ module "zone_staging_us_east_1c" {
 #  Then we set up two zones that production deployments go to.
 #
 module "zone_prod_us_east_1c" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.prod.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -117,8 +112,9 @@ module "zone_prod_us_east_1c" {
 }
 
 module "zone_prod_us_west_1a" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = ">= 1.0.0, < 2.0.0"
+  version = "~> 2.0"
   zone    = module.enclave.zones.prod.aws_us_west_2a
   providers = {
     aws = aws.us_west_2
