@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
   pull_request:
 
+permissions: read-all
+
 jobs:
   terraform:
     name: "Terraform"

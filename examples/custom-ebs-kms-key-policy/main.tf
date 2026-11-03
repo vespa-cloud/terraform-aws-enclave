@@ -12,6 +12,7 @@ provider "aws" {
 # provision Vespa Cloud resources inside the AWS account.
 #
 module "enclave" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source      = "vespa-cloud/enclave/aws"
   version     = "~> 2.0"
   tenant_name = "<YOUR-TENANT-HERE>"
@@ -23,6 +24,8 @@ module "enclave" {
 # in a separate scanner account needs read access to encrypted EBS volumes.
 #
 data "aws_iam_policy_document" "ebs_kms_key_extra" {
+  #checkov:skip=CKV_AWS_111:This is a key policy. Resource must be '*'
+  #checkov:skip=CKV_AWS_356:This is a key policy. Resource must be '*'
   statement {
     sid    = "AllowAgentlessScanner"
     effect = "Allow"
@@ -46,6 +49,7 @@ data "aws_iam_policy_document" "ebs_kms_key_extra" {
 # external scanner role defined above to access encrypted volumes.
 #
 module "zone_dev_us_east_1c" {
+  #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
   version = "~> 2.0"
   zone    = module.enclave.zones.dev.aws_us_east_1c
