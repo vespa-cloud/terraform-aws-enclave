@@ -17,18 +17,27 @@ configured.
 
 For this module to work the [top-level module](../../) must also be configured.
 
-```
+```hcl
+locals {
+  enclave_version = "3.0.0"
+}
+
 module "enclave" {
   source      = "vespa-cloud/enclave/aws"
-  version     = "~> 2.0"
+  version     = local.enclave_version
   tenant_name = "<vespa cloud tenant>"
 }
 
 module "zone_prod_us_east_1c" {
-  source  = "vespa-cloud/enclave/aws//modules//zone"
-  version = "~> 2.0"
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = local.enclave_version
+  zone    = module.enclave.zones.prod.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
   }
 }
 ```
+
+This module must be installed at the same release as the top-level module that
+produced its `zone` object, and fails to plan otherwise. See
+[Versioning](../../README.md#versioning) in the top-level README.

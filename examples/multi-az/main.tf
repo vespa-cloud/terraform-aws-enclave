@@ -7,13 +7,27 @@ provider "aws" {
 }
 
 #
+# The release of the Vespa Cloud Enclave modules to use. The enclave module
+# and all its zone modules must be installed at the same release.
+# Replace it with the latest release listed at
+# https://github.com/vespa-cloud/terraform-aws-enclave/releases
+#
+# Referring to a local value in a module's version requires Terraform >= 1.15
+# or OpenTofu >= 1.8. With an older version, write this version as a literal
+# in every module block instead.
+#
+locals {
+  enclave_version = "3.0.0"
+}
+
+#
 # Set up the basic module that grants Vespa Cloud permission to
 # provision Vespa Cloud resources inside the AWS account.
 #
 module "enclave" {
   #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source      = "vespa-cloud/enclave/aws"
-  version     = "~> 2.0"
+  version     = local.enclave_version
   tenant_name = "<YOUR-TENANT-HERE>"
 }
 
@@ -26,7 +40,7 @@ module "enclave" {
 module "zone_prod_us_east_1" {
   #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone_multi_az"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.prod.aws_us_east_1
 
   azs             = ["use1-az1", "use1-az5"]

@@ -27,7 +27,10 @@ Networking (VPC, subnets, NAT gateway, security groups, VPC endpoints, KMS keys,
 is created per-zone via the `modules/zone` submodule after the root module has been applied.
 
 ## Requirements
-- Terraform >= 1.3 or OpenTofu >= 1.6
+- Terraform >= 1.7 or OpenTofu >= 1.7
+- The examples declare the module version once and refer to it from every module block, which requires
+  Terraform >= 1.15 or OpenTofu >= 1.8. See [Older Terraform and OpenTofu versions](#older-terraform-and-opentofu-versions)
+  for the alternative.
 - AWS provider (hashicorp/aws)
 - AWS account where you have sufficient permissions to:
   - Create IAM roles, policies, and instance profiles
@@ -48,7 +51,15 @@ Production deployments in Vespa Cloud go through a CI/CD pipeline that requires 
 `staging` zones in addition to your `prod` zones. A `dev` zone is also typically set up for
 manual development deployments. The example below sets up all four environments.
 
+The enclave module and all its zone modules must be installed at the same release, so the example
+declares the version once. See [Versioning](#versioning).
+
 ```hcl
+# The release of the Vespa Cloud Enclave modules, used by every module block.
+locals {
+  enclave_version = "3.0.0"
+}
+
 provider "aws" {
   alias  = "us_east_1"
   region = "us-east-1"
@@ -62,7 +73,7 @@ provider "aws" {
 # Bootstrap your account for Vespa Cloud
 module "enclave" {
   source      = "vespa-cloud/enclave/aws"
-  version     = "~> 2.0"
+  version     = local.enclave_version
   tenant_name = "<YOUR-VESPA-TENANT-NAME>"
 
   # Grant Vespa Cloud support limited-time read access to encrypted heap dumps
@@ -77,7 +88,7 @@ module "enclave" {
 # Dev zone for manual development deployments
 module "zone_dev_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.dev.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -88,7 +99,7 @@ module "zone_dev_us_east_1c" {
 # before changes can be promoted to prod.
 module "zone_test_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.test.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -97,7 +108,7 @@ module "zone_test_us_east_1c" {
 
 module "zone_staging_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.staging.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -107,7 +118,7 @@ module "zone_staging_us_east_1c" {
 # Production zones (add as many as you need)
 module "zone_prod_us_east_1c" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.prod.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -120,7 +131,7 @@ module "zone_prod_us_east_1c" {
 
 module "zone_prod_us_west_2a" {
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.prod.aws_us_west_2a
   providers = {
     aws = aws.us_west_2
@@ -181,20 +192,112 @@ Option B (least-privilege):
   S3 buckets, and VPC endpoints.
 
 ## Versioning
-This module follows semantic versioning. Pin a compatible version range when consuming the module, for example:
-`~> 2.0`.
+This module follows semantic versioning. Releases are listed at
+https://github.com/vespa-cloud/terraform-aws-enclave/releases
+
+The enclave module and all the zone modules that use its zone objects must be installed at the same
+release. Each zone module checks this when planning. If its release differs from the enclave module's,
+the plan fails with an error that names the zone and both releases:
+
+```
+Zone prod.aws-us-east-1c uses zone module release 3.0.0, but its zone object comes from enclave module
+release 3.1.0. The enclave module and all of its zone modules must be installed at the same release.
+Set every module block to the same version, 3.1.0 or newer, then run init -upgrade.
+```
+
+Declare the version once and refer to it from every module block, as the examples do:
+
+```hcl
+locals {
+  enclave_version = "3.0.0"
+}
+
+module "enclave" {
+  source  = "vespa-cloud/enclave/aws"
+  version = local.enclave_version
+  # ...
+}
+
+module "zone_prod_us_east_1c" {
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = local.enclave_version
+  # ...
+}
+```
+
+To upgrade, change that one value and run `terraform init -upgrade` or `tofu init -upgrade`.
+
+Use an exact version, not a range such as `~> 3.0`. Terraform and OpenTofu choose a release for each
+module block when that block is first installed. Blocks with the same range can therefore end up at
+different releases, for example when you add a zone after a newer release has been published.
+
+Two enclave modules in the same configuration may be at different releases, as long as each one's zone
+modules match it.
+
+### Older Terraform and OpenTofu versions
+
+Referring to a local value in the `version` argument of a module block requires Terraform >= 1.15 or
+OpenTofu >= 1.8. Older versions reject it:
+
+```
+Error: Variables not allowed
+
+Variables may not be used here.
+```
+
+With an older version, write the same version as a literal in every module block instead:
+
+```hcl
+module "enclave" {
+  source  = "vespa-cloud/enclave/aws"
+  version = "3.0.0"
+  # ...
+}
+
+module "zone_prod_us_east_1c" {
+  source  = "vespa-cloud/enclave/aws//modules/zone"
+  version = "3.0.0"
+  # ...
+}
+```
+
+### Upgrading to v3
+
+Version 3 requires the enclave module and its zone modules to be at the same release, and renames one
+attribute of the zone objects to enforce it.
+
+Upgrade every module block of an enclave to the same v3 release in one change, then run
+`terraform init -upgrade` or `tofu init -upgrade`. Before applying, review the plan. Coming from v2, the
+only changes to AWS resources should be updates of the `vespa_template_version` tag on the VPC of each
+zone.
+
+If a module block is left at an earlier release, the plan fails:
+
+- A zone module at a release before 3.0.0 rejects the zone object from a v3 enclave module because
+  an attribute it requires is missing, for example with `attribute "template_version" is required`.
+  Upgrade that zone module block to the enclave module's release.
+- A v3 zone module rejects the zone object from an enclave module at a release before 3.0.0 with the
+  error shown under [Versioning](#versioning). Upgrade the enclave module block.
+
+The `zones` output no longer has a `template_version` attribute in each zone object. The release is now
+in `enclave_release`.
+
+The minimum versions stated under [Requirements](#requirements) are now Terraform 1.7 and OpenTofu 1.7.
+
+If you are on v1, upgrade directly to v3. There is no need to apply v2 first. Follow
+[Upgrading support-data access from v1](#upgrading-support-data-access-from-v1) in the same change.
 
 ### Upgrading support-data access from v1
 
-Version 2 replaces the standalone `modules/coredump-access` module and its
+Version 2 replaced the standalone `modules/coredump-access` module and its
 `vespa-coredump-read` IAM resources. Read access to encrypted heap dumps and
-native core dumps is now configured through the root module's
+native core dumps is configured through the root module's
 `support_data_access_allowed_until` input, which creates the renamed
 `vespa-support-data-read` IAM resources.
 
 If your last apply of the standalone `coredump-access` module had
 `read_access_expires_at` unset or `null`, your Terraform state contains no IAM
-resources from it. Remove the module block when you upgrade to v2. No other
+resources from it. Remove the module block when you upgrade. No other
 migration is needed.
 
 If your last apply used a non-null `read_access_expires_at`, including an
@@ -202,18 +305,18 @@ expired timestamp, your Terraform state contains IAM resources created by the
 standalone module. In the same configuration change:
 
 1. Remove the standalone `coredump-access` module block.
-2. Upgrade the root module to v2 and set `support_data_access_allowed_until` to the desired deadline, or leave it `null` to revoke access.
+2. Upgrade the root module and its zone modules to v3, and set `support_data_access_allowed_until` to the desired deadline, or leave it `null` to revoke access.
 
 Apply the combined change once. Terraform can remove the legacy IAM resources
-and create the v2 resources in the same apply because their AWS names differ.
-The old module path is not available in v2.
+and create the new resources in the same apply because their AWS names differ.
+The old module path is not available in v2 or later.
 
 Before applying, review the plan. The plan should remove the
 `vespa-coredump-read` resources and create the `vespa-support-data-read`
 resources, unless `support_data_access_allowed_until` is `null`, in which case
 it should create no new access resources.
 
-Version 2 also types `vespa_cloud_account` as a string and validates that it is
+Since version 2, `vespa_cloud_account` is typed as a string and validated to be
 a supported public-system account ID. Callers using another value must update
 it before upgrading.
 
