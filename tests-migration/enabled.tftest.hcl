@@ -1,9 +1,12 @@
-# Tests a v1-to-v2 upgrade with a future access deadline. The first run creates
+# Tests a v1-to-v3 upgrade with a future access deadline. The first run creates
 # the legacy dump-read IAM resources and overrides module.enclave to exclude
-# v2 resources. The second run removes the legacy resources and creates the
-# v2 support-data role, which trusts the tenant's public CD debug identity.
+# v3 resources. The second run removes the legacy resources and creates the
+# v3 support-data role, which trusts the tenant's public CD debug identity.
 # Both runs use the same test module so the second apply reuses the first
 # run's state. Each test file has its own isolated state.
+#
+# The upgrade goes directly from v1 to this checkout, without applying v2 in
+# between.
 #
 # The mocked AWS provider updates test state without making AWS API calls.
 # Live access and expiry enforcement require separate AWS tests.
@@ -61,7 +64,7 @@ run "enabled_v1" {
   }
 }
 
-run "enabled_v2" {
+run "enabled_v3" {
   command = apply
 
   module {
@@ -75,12 +78,12 @@ run "enabled_v2" {
 
   assert {
     condition     = output.support_data_role_arn != null
-    error_message = "one v2 apply should replace enabled legacy access with support-data access"
+    error_message = "one v3 apply should replace enabled legacy access with support-data access"
   }
 
   assert {
     condition     = output.support_data_trusted_principal_arn == "arn:aws:iam::061361823659:role/vespa-debug-cd.vespa"
-    error_message = "the v2 role should trust the public CD tenant identity"
+    error_message = "the v3 role should trust the public CD tenant identity"
   }
 
   assert {
@@ -89,6 +92,6 @@ run "enabled_v2" {
       output.legacy_role_name == null &&
       output.legacy_policy_name == null
     )
-    error_message = "the v2 apply should remove the legacy IAM resources"
+    error_message = "the v3 apply should remove the legacy IAM resources"
   }
 }

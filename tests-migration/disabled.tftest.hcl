@@ -1,9 +1,12 @@
-# Tests a v1-to-v2 upgrade with access disabled: both versions receive null
+# Tests a v1-to-v3 upgrade with access disabled: both versions receive null
 # for their access deadline. The first run overrides module.enclave to exclude
-# v2 resources and verifies that no legacy access role or policy exists. The
-# second run applies the v2 root module and verifies that access resources
+# v3 resources and verifies that no legacy access role or policy exists. The
+# second run applies the v3 root module and verifies that access resources
 # remain absent. Both runs use the same test module to share state. Each test
 # file has its own isolated state.
+#
+# The upgrade goes directly from v1 to this checkout, without applying v2 in
+# between.
 #
 # The mocked AWS provider updates test state without making AWS API calls.
 # Live access enforcement requires separate AWS tests.
@@ -61,7 +64,7 @@ run "disabled_v1" {
   }
 }
 
-run "disabled_v2" {
+run "disabled_v3" {
   command = apply
 
   module {
@@ -81,6 +84,6 @@ run "disabled_v2" {
       output.support_data_role_arn == null &&
       output.support_data_trusted_principal_arn == null
     )
-    error_message = "a disabled caller should remain without access after the v2 upgrade"
+    error_message = "a disabled caller should remain without access after the v3 upgrade"
   }
 }
