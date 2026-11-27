@@ -14,11 +14,52 @@ data "aws_iam_session_context" "current" {
   arn = data.aws_caller_identity.current.arn
 }
 
+locals {
+  # The release of the module package this zone module is installed from, read
+  # from the VERSION file at the package root.
+  release = trimspace(file("${path.module}/../../../VERSION"))
+
+  # The release of the enclave module that produced the zone object. Enclave
+  # module releases before 3.0.0 emit template_version in its place, which only
+  # serves to name that release in the error message.
+  enclave_release = coalesce(var.zone.enclave_release, var.zone.template_version, "unknown")
+
+  # Both releases as comparable numbers, so that the error message can name the
+  # newer one. Null for a value that is not of the form X.Y.Z.
+  release_rank = {
+    for name, release in { zone = local.release, enclave = local.enclave_release } :
+    name => try(
+      length(split(".", release)) == 3 ? sum([for i, part in split(".", release) : tonumber(part) * pow(1000000, 2 - i)]) : null,
+      null,
+    )
+  }
+  newer_release = try(local.release_rank.enclave > local.release_rank.zone ? local.enclave_release : local.release, null)
+
+  # Naming the newer release fails when it is null, which leaves the general
+  # instruction.
+  release_remedy = try(
+    "Set every module block to the same version, ${local.newer_release} or newer, then run init -upgrade.",
+    "Set every module block to the same version, then run init -upgrade.",
+  )
+}
+
 resource "terraform_data" "validations" {
   lifecycle {
     precondition {
       condition     = length(var.secondary_ipv4_cidrs) == max(0, length(var.azs) - 1)
       error_message = "secondary_ipv4_cidrs length must equal length(azs) - 1."
+    }
+    # The enclave module and its zone modules are released together, but each
+    # module block is installed separately and can end up at a different
+    # release. A zone module that is older or newer than its enclave module
+    # would silently create a different set of resources than that enclave
+    # release expects. A plan limited with -target to other resources does not
+    # evaluate this check.
+    precondition {
+      condition = var.zone.enclave_release == local.release
+      # The message is evaluated even when the condition holds, so it must not
+      # fail on the attributes that are null in that case.
+      error_message = "Zone ${var.zone.name} uses zone module release ${local.release}, but its zone object comes from enclave module release ${local.enclave_release}. The enclave module and all of its zone modules must be installed at the same release. ${local.release_remedy}"
     }
   }
 }
@@ -44,7 +85,7 @@ resource "aws_vpc" "main" {
     zone                   = var.zone.name
     archive_bucket         = module.archive.bucket
     coredump_bucket        = module.coredump.bucket
-    vespa_template_version = var.zone.template_version
+    vespa_template_version = local.release
   }
 }
 

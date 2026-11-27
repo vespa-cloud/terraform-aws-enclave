@@ -1,7 +1,8 @@
 locals {
-  # NOTE: Do not rename or move this variable!
-  # Used by github actions to tag releases. Bump for non-trivial changes.
-  template_version = "2.0.0"
+  # The release of this module package, read from the VERSION file at the
+  # package root. GitHub Actions tags releases from that file, and every zone
+  # module compares this value with the release of its own package.
+  release = trimspace(file("${path.module}/VERSION"))
 
   debug_identity_prefix_by_account = {
     "332934501266" = "vespa-debug."

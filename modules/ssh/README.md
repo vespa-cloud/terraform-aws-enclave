@@ -7,15 +7,19 @@ to the hosts inside the Enclave through
 Only use this module if you explicitly wish to grant this access.
 
 ```terraform
+locals {
+  enclave_version = "3.0.0"
+}
+
 module "enclave" {
   source      = "vespa-cloud/enclave/aws"
-  version     = "~> 2.0"
+  version     = local.enclave_version
   tenant_name = "<vespa cloud tenant>"
 }
 
 module "ssh" {
   source              = "vespa-cloud/enclave/aws//modules/ssh"
-  version             = "~> 2.0"
+  version             = local.enclave_version
   vespa_cloud_account = module.enclave.vespa_cloud_account
 }
 ```

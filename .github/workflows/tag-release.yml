@@ -1,4 +1,4 @@
-name: Tag release from main.tf template_version
+name: Tag release from VERSION
 
 on:
   push:
@@ -17,4 +17,6 @@ jobs:
   tag-release:
     needs: smoke-test
     uses: vespa-engine/gh-actions/.github/workflows/tf-tag-release.yml@main
+    with:
+      version-file: VERSION
     secrets: inherit

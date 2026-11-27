@@ -10,3 +10,5 @@ permissions: read-all
 jobs:
   version-check:
     uses: vespa-engine/gh-actions/.github/workflows/tf-version-check.yml@main
+    with:
+      version-file: VERSION

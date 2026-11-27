@@ -36,7 +36,7 @@ jobs:
           tofu_version: latest
       - name: Initialize migration tests
         run: tofu init -backend=false -test-directory=tests-migration
-      - name: Test v1-to-v2 migration
+      - name: Test v1-to-v3 migration
         run: tofu test -test-directory=tests-migration
       - name: Verify removed v1 module path
         working-directory: tests/removed-coredump-access
@@ -50,6 +50,23 @@ jobs:
             echo "Initialization failed for an unexpected reason."
             exit 1
           fi
+  release-compatibility-test:
+    name: "Release compatibility test"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Set up OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: latest
+          # check.sh parses tofu's JSON output. The wrapper would append a
+          # plain-text error line to it when the plan fails as expected.
+          tofu_wrapper: false
+      - name: Initialize compatibility tests
+        run: tofu init -backend=false -test-directory=tests-compatibility
+      - name: Verify that modules from a published release are rejected
+        run: tests-compatibility/check.sh
   checkov:
     name: "Checkov"
     runs-on: ubuntu-latest

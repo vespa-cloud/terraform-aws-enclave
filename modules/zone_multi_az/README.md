@@ -22,16 +22,24 @@ For this module to work the [top-level module](../../) must also be configured.
 
 ## Usage
 
+This module must be installed at the same release as the top-level module that
+produced its `zone` object, and fails to plan otherwise. See
+[Versioning](../../README.md#versioning) in the top-level README.
+
 ```hcl
+locals {
+  enclave_version = "3.0.0"
+}
+
 module "enclave" {
   source      = "vespa-cloud/enclave/aws"
-  version     = "~> 2.0"
+  version     = local.enclave_version
   tenant_name = "<YOUR-VESPA-TENANT-NAME>"
 }
 
 module "zone_prod_us_east_1" {
   source  = "vespa-cloud/enclave/aws//modules/zone_multi_az"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.prod.aws_us_east_1
 
   # AZ that owns the VPC's primary CIDR block. Must be one of the deployed AZs.

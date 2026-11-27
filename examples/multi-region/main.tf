@@ -28,13 +28,27 @@ provider "aws" {
 }
 
 #
+# The release of the Vespa Cloud Enclave modules to use. The enclave module
+# and all its zone modules must be installed at the same release.
+# Replace it with the latest release listed at
+# https://github.com/vespa-cloud/terraform-aws-enclave/releases
+#
+# Referring to a local value in a module's version requires Terraform >= 1.15
+# or OpenTofu >= 1.8. With an older version, write this version as a literal
+# in every module block instead.
+#
+locals {
+  enclave_version = "3.0.0"
+}
+
+#
 # Set up the basic module that grants Vespa Cloud permission to
 # provision Vespa Cloud resources inside the AWS account.
 #
 module "enclave" {
   #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source      = "vespa-cloud/enclave/aws"
-  version     = "~> 2.0"
+  version     = local.enclave_version
   tenant_name = "<YOUR-TENANT-HERE>"
 
   # Set this when Vespa Cloud support asks for read access to encrypted heap
@@ -67,7 +81,7 @@ module "enclave" {
 module "zone_dev_us_east_1c" {
   #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.dev.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -81,7 +95,7 @@ module "zone_dev_us_east_1c" {
 module "zone_test_us_east_1c" {
   #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.test.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -91,7 +105,7 @@ module "zone_test_us_east_1c" {
 module "zone_staging_us_east_1c" {
   #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.staging.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -104,7 +118,7 @@ module "zone_staging_us_east_1c" {
 module "zone_prod_us_east_1c" {
   #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.prod.aws_us_east_1c
   providers = {
     aws = aws.us_east_1
@@ -114,7 +128,7 @@ module "zone_prod_us_east_1c" {
 module "zone_prod_us_west_1a" {
   #checkov:skip=CKV_TF_1:Registry example uses a version constraint for customer consumption
   source  = "vespa-cloud/enclave/aws//modules/zone"
-  version = "~> 2.0"
+  version = local.enclave_version
   zone    = module.enclave.zones.prod.aws_us_west_2a
   providers = {
     aws = aws.us_west_2

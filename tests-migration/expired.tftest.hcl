@@ -1,9 +1,12 @@
-# Tests a v1-to-v2 upgrade with an expired access deadline. Expiry leaves the
+# Tests a v1-to-v3 upgrade with an expired access deadline. Expiry leaves the
 # IAM resources in place; it restricts access through policy conditions. The
 # first run creates the legacy resources and overrides module.enclave to
-# exclude v2 resources. The second run replaces them with v2 support-data
+# exclude v3 resources. The second run replaces them with v3 support-data
 # resources while preserving the expired deadline. Both runs use the same
 # test module to share state. Each test file has its own isolated state.
+#
+# The upgrade goes directly from v1 to this checkout, without applying v2 in
+# between.
 #
 # The mocked AWS provider updates test state without making AWS API calls.
 # Live access and expiry enforcement require separate AWS tests.
@@ -61,7 +64,7 @@ run "expired_v1" {
   }
 }
 
-run "expired_v2" {
+run "expired_v3" {
   command = apply
 
   module {
@@ -75,7 +78,7 @@ run "expired_v2" {
 
   assert {
     condition     = output.support_data_role_arn != null
-    error_message = "one v2 apply should replace expired legacy resources with v2 resources"
+    error_message = "one v3 apply should replace expired legacy resources with v3 resources"
   }
 
   assert {
@@ -84,6 +87,6 @@ run "expired_v2" {
       output.legacy_role_name == null &&
       output.legacy_policy_name == null
     )
-    error_message = "the v2 apply should remove the legacy IAM resources"
+    error_message = "the v3 apply should remove the legacy IAM resources"
   }
 }

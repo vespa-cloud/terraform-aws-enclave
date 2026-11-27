@@ -8,9 +8,16 @@ variable "zone" {
     tag         = string,
     # az is unused by this module (the deployed AZs come from configserver_az
     # and var.azs) and is null for multi-AZ regions, so it is optional here.
-    az               = optional(string),
-    configserver_az  = list(string),
-    template_version = string,
+    az              = optional(string),
+    configserver_az = list(string),
+    # Release of the enclave module that produced this zone object. It must
+    # equal the release of the package this module is installed from, which is
+    # checked in modules/internal/regional.
+    enclave_release = optional(string),
+    # Enclave module releases before 3.0.0 emit this in place of
+    # enclave_release. It only names that release in the error message and
+    # never satisfies the check.
+    template_version = optional(string),
   })
   validation {
     condition     = var.zone.configserver_az != null && length(var.zone.configserver_az) >= 3

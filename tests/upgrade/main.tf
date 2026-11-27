@@ -1,4 +1,4 @@
-# Exercises the v1 and v2 resource graphs through one stable test module so
+# Exercises the v1 and v3 resource graphs through one stable test module so
 # consecutive test runs operate on the same state.
 
 terraform {
