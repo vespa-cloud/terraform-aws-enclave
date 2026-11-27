@@ -2,12 +2,19 @@
 variable "zone" {
   description = "Vespa Cloud zone to bootstrap"
   type = object({
-    environment      = string,
-    region           = string,
-    name             = string,
-    tag              = string,
-    az               = string,
-    template_version = string,
+    environment = string,
+    region      = string,
+    name        = string,
+    tag         = string,
+    az          = string,
+    # Release of the enclave module that produced this zone object. It must
+    # equal the release of the package this module is installed from, which is
+    # checked in modules/internal/regional.
+    enclave_release = optional(string),
+    # Enclave module releases before 3.0.0 emit this in place of
+    # enclave_release. It only names that release in the error message and
+    # never satisfies the check.
+    template_version = optional(string),
   })
   validation {
     condition     = var.zone.az != null

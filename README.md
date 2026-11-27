@@ -148,7 +148,7 @@ See complete working examples in `examples/`.
   - `region`: Vespa region id (e.g. `aws-us-east-1c`)
   - `az`: List of AWS Availability Zone IDs the zone spans (e.g. `["use1-az6"]`)
   - `configserver_az`: For multi-AZ zones, the AWS Availability Zone IDs the Vespa Cloud configservers run in (unset for single-AZ zones)
-  - `template_version`: Module template version
+  - `enclave_release`: Release of the enclave module that produced the zone object. Each zone module requires it to equal its own release.
 
 - `vespa_cloud_account` (string): The Vespa Cloud AWS account used to manage enclave accounts.
 

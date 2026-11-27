@@ -2,12 +2,11 @@
 variable "zone" {
   description = "Vespa Cloud zone, used for resource tag names."
   type = object({
-    environment      = string,
-    region           = string,
-    name             = string,
-    tag              = string,
-    az               = optional(string),
-    template_version = string,
+    environment = string,
+    region      = string,
+    name        = string,
+    tag         = string,
+    az          = optional(string),
   })
 }
 

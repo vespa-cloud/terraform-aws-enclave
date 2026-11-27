@@ -66,6 +66,14 @@ mock_provider "aws" {
   }
 }
 
+# Inputs for the runs that plan modules/internal/regional on its own. Each of
+# those runs sets the zone object itself.
+variables {
+  azs                     = ["use1-az6"]
+  primary_ipv4_cidr       = "10.128.0.0/16"
+  primary_natgw_subnet_id = "subnet-00000000000000000"
+}
+
 # Plan the root module on its own, with only the required variable set.
 run "root_module" {
   command = plan
@@ -87,6 +95,16 @@ run "root_module" {
   assert {
     condition     = length(output.zones.prod.aws_us_east_1.configserver_az) >= 2
     error_message = "multi-AZ zone should carry multiple configserver AZs"
+  }
+
+  assert {
+    condition     = output.zones.prod.aws_us_east_1c.enclave_release == trimspace(file("VERSION")) && output.zones.prod.aws_us_east_1.enclave_release == trimspace(file("VERSION"))
+    error_message = "every zone object should carry the release from the VERSION file"
+  }
+
+  assert {
+    condition     = !can(output.zones.prod.aws_us_east_1c.template_version)
+    error_message = "zone objects must not carry template_version, so that zone modules without the release check reject them"
   }
 
   assert {
@@ -235,4 +253,89 @@ run "full_composition" {
     condition     = output.vespa_host_role == "vespa.tenant.vespa.aws-123456789012.tenant-host-service"
     error_message = "vespa_host_role not derived from caller identity as expected"
   }
+}
+
+# The zone modules must be installed at the same release as the enclave module
+# that produced their zone object. The check lives in the regional module that
+# both zone modules share; full_composition covers a matching release passed
+# through each zone module.
+run "package_release" {
+  command = apply
+
+  module {
+    source = "./tests/package-release"
+  }
+}
+
+run "regional_accepts_matching_enclave_release" {
+  command = plan
+
+  module {
+    source = "./modules/internal/regional"
+  }
+
+  variables {
+    zone = {
+      environment     = "prod"
+      region          = "aws-us-east-1c"
+      name            = "prod.aws-us-east-1c"
+      tag             = "prod.aws-use-1c"
+      az              = "use1-az6"
+      enclave_release = run.package_release.release
+    }
+  }
+
+  assert {
+    condition     = aws_vpc.main.tags.vespa_template_version == trimspace(file("VERSION"))
+    error_message = "the VPC should be tagged with the release"
+  }
+}
+
+run "regional_rejects_other_enclave_release" {
+  command = plan
+
+  module {
+    source = "./modules/internal/regional"
+  }
+
+  variables {
+    zone = {
+      environment     = "prod"
+      region          = "aws-us-east-1c"
+      name            = "prod.aws-us-east-1c"
+      tag             = "prod.aws-use-1c"
+      az              = "use1-az6"
+      enclave_release = "0.0.1"
+    }
+  }
+
+  expect_failures = [
+    terraform_data.validations,
+  ]
+}
+
+# Enclave module releases before 3.0.0 emit template_version and no
+# enclave_release. template_version must not satisfy the check, even when it
+# equals the zone module's release.
+run "regional_rejects_enclave_without_release" {
+  command = plan
+
+  module {
+    source = "./modules/internal/regional"
+  }
+
+  variables {
+    zone = {
+      environment      = "prod"
+      region           = "aws-us-east-1c"
+      name             = "prod.aws-us-east-1c"
+      tag              = "prod.aws-use-1c"
+      az               = "use1-az6"
+      template_version = run.package_release.release
+    }
+  }
+
+  expect_failures = [
+    terraform_data.validations,
+  ]
 }

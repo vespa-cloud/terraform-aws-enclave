@@ -2,12 +2,17 @@
 variable "zone" {
   description = "Vespa Cloud zone to bootstrap"
   type = object({
-    environment      = string,
-    region           = string,
-    name             = string,
-    tag              = string,
-    az               = optional(string),
-    template_version = string,
+    environment = string,
+    region      = string,
+    name        = string,
+    tag         = string,
+    az          = optional(string),
+    # Release of the enclave module that produced the zone object, checked
+    # against this package's release in terraform_data.validations.
+    enclave_release = optional(string),
+    # Emitted in place of enclave_release by enclave module releases before
+    # 3.0.0. Only used in the error message of that check.
+    template_version = optional(string),
   })
 }
 
